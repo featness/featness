@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/globoi/featness/api"
 	"github.com/gorilla/pat"
 	"github.com/tsuru/config"
 	"log"
@@ -29,8 +30,11 @@ func loadConfigFile(path *string) {
 	}
 }
 
-func getHandlers() *pat.Router {
-	return &pat.Router{}
+func getRouter() *pat.Router {
+	router := pat.New()
+	router.Get("/healthcheck", api.Healthcheck)
+
+	return router
 }
 
 func main() {
@@ -43,5 +47,5 @@ func main() {
 
 	loadConfigFile(configFile)
 
-	//router := getHandlers()
+	//router := getRouter()
 }

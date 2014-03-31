@@ -14,7 +14,7 @@ func (s *Suite) TestHealthcheck(c *gocheck.C) {
 	request, err := http.NewRequest("GET", "/healthcheck", nil)
 	c.Assert(err, gocheck.IsNil)
 
-	healthcheck(recorder, request)
+	Healthcheck(recorder, request)
 	c.Assert(recorder.Code, gocheck.Equals, http.StatusOK)
 
 	body, err := ioutil.ReadAll(recorder.Body)
