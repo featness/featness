@@ -1,11 +1,9 @@
-// +build main
-
 package main
 
 import (
 	"flag"
 	"fmt"
-	//"github.com/globoi/featness/api"
+	"github.com/gorilla/pat"
 	"github.com/tsuru/config"
 	"log"
 	"os"
@@ -31,6 +29,10 @@ func loadConfigFile(path *string) {
 	}
 }
 
+func getHandlers() *pat.Router {
+	return &pat.Router{}
+}
+
 func main() {
 	configFile, gVersion := parseFlags(os.Args)
 
@@ -40,4 +42,6 @@ func main() {
 	}
 
 	loadConfigFile(configFile)
+
+	//router := getHandlers()
 }
