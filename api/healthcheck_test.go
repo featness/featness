@@ -7,9 +7,6 @@ import (
 	"net/http/httptest"
 )
 
-type Suite struct {
-}
-
 var _ = gocheck.Suite(&Suite{})
 
 func (s *Suite) TestHealthcheck(c *gocheck.C) {

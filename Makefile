@@ -78,7 +78,11 @@ _go_test:
 	@go clean ./...
 	@godep go test ./...
 
-_build:
-	@godep go build -o featness ./cmd/featness
+build: _build_api
+
+_build_api:
+	@rm -rf ./cmd/featness-api
+	@godep go build -o ./cmd/featness-api ./api/main.go
+	@chmod +x ./cmd/featness-api
 
 test: _go_test
