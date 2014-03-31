@@ -10,8 +10,6 @@ import (
 	"os"
 )
 
-const version = "0.1.0"
-
 func parseFlags(args []string) (*string, *bool) {
 	flagSet := flag.NewFlagSet("configuration", flag.ExitOnError)
 	configFile := flagSet.String("config", "/etc/featness-api.conf", "Featness API configuration file")
@@ -41,7 +39,7 @@ func main() {
 	configFile, gVersion := parseFlags(os.Args)
 
 	if *gVersion {
-		fmt.Printf("featness-api version %s\n", version)
+		fmt.Printf("featness-api version %s\n", api.Version)
 		return
 	}
 
