@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"github.com/globoi/featness/api"
 	"github.com/gorilla/pat"
+	"mime"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func parseFlags(args []string) bool {
@@ -17,29 +20,25 @@ func parseFlags(args []string) bool {
 	return *gVersion
 }
 
-func serveAngular(w http.ResponseWriter, r *http.Request) {
-	data, _ := Asset("dashboard/index.html")
-	fmt.Printf("PASSOU AKI\n")
-	w.Write(data)
-}
-
-func serveScripts(w http.ResponseWriter, r *http.Request) {
+func serveAssets(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get(":path")
-	data, _ := Asset(fmt.Sprintf("dashboard/scripts/%s", path))
-	w.Write(data)
-}
+	if path == "" {
+		path = "index.html"
+	}
+	fullPath := fmt.Sprintf("dashboard/%s", path)
+	data, _ := Asset(fullPath)
 
-func serveStyles(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Query().Get(":path")
-	data, _ := Asset(fmt.Sprintf("dashboard/styles/%s", path))
+	ext := path[strings.LastIndex(path, "."):]
+	mimeType := mime.TypeByExtension(ext)
+	fmt.Println(path, ext, mimeType)
+	w.Header().Set("Content-type", mimeType)
+	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
 	w.Write(data)
 }
 
 func getRouter() *pat.Router {
 	router := pat.New()
-	router.Get("/scripts/{path:.+}", serveScripts)
-	router.Get("/styles/{path:.+}", serveStyles)
-	router.Get("/", serveAngular)
+	router.Get("/{path:.*}", serveAssets)
 
 	return router
 }

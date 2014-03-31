@@ -5,8 +5,7 @@ angular
     'ngCookies',
     'ngResource',
     'ngSanitize',
-    'ngRoute',
-    'locationProvider'
+    'ngRoute'
   ])
   .config ($routeProvider, $locationProvider) ->
     $locationProvider.html5Mode(true)
