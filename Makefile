@@ -92,7 +92,8 @@ _build_dashboard: _build_web_app
 
 _build_web_app:
 	@cd dashboard && grunt build
-	@cp -r dashboard/dist ./dashboard-server/
+	@mkdir -p ./dashboard-server/dashboard
+	@cp -r dashboard/dist/* ./dashboard-server/dashboard
 	@cd dashboard-server && go-bindata dashboard/...
 	@rm -rf ./dashboard-server/dashboard
 
