@@ -6,6 +6,30 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "11ae2122d92bb0b626705bccf3795d3e51ffb1de"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "51a7bc30e9ae0df47f723814a4b0ab92109ea7eb"
+		},
+		{
+			"ImportPath": "github.com/gorilla/pat",
+			"Rev": "ae2e162c4b2ae96aa66b596b2c18f17834299ed0"
+		},
+		{
+			"ImportPath": "github.com/howeyc/fsnotify",
+			"Rev": "c746f6995da451a2c9e20a68dfb91d2cf25ffa79"
+		},
+		{
+			"ImportPath": "github.com/tsuru/config",
+			"Rev": "97d4a7511ea73e02a62a1a381d17110b5372cc40"
+		},
+		{
+			"ImportPath": "gopkg.in/v1/yaml",
+			"Rev": "3d8cfc3754fba03b8f1a0d44ea4e6e870cf86c57"
+		},
+		{
 			"ImportPath": "launchpad.net/gocheck",
 			"Comment": "87",
 			"Rev": "gustavo@niemeyer.net-20140225173054-xu9zlkf9kxhvow02"
