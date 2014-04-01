@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/globoi/featness/api"
 	"github.com/gorilla/pat"
+	"log"
 	"mime"
 	"net/http"
 	"os"
@@ -52,5 +53,6 @@ func main() {
 	}
 
 	router := getRouter()
+	log.Println("featness-dashboard running at http://localhost:8080...")
 	http.ListenAndServe(":8080", router)
 }

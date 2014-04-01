@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/pat"
 	"github.com/tsuru/config"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -27,7 +28,7 @@ func loadConfigFile(path string, logger Logger) {
 	err := config.ReadAndWatchConfigFile(path)
 	if err != nil {
 		msg := `Could not find featness-api config file. Searched on %s.
-	For an example conf check featness-api/etc/featness-api.conf file.\n %s`
+	For an example conf check api/etc/local.conf file.\n %s`
 		logger.Panicf(msg, path, err)
 	}
 }
@@ -40,7 +41,7 @@ func getRouter() *pat.Router {
 }
 
 func main() {
-	configFile, gVersion := parseFlags(os.Args)
+	configFile, gVersion := parseFlags(os.Args[1:])
 
 	if *gVersion {
 		fmt.Printf("featness-api version %s\n", api.Version)
@@ -50,5 +51,7 @@ func main() {
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 	loadConfigFile(*configFile, logger)
 
-	//router := getRouter()
+	router := getRouter()
+	log.Println("featness-api running at http://localhost:8000...")
+	http.ListenAndServe(":8000", router)
 }
