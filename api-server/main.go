@@ -15,13 +15,13 @@ type Logger interface {
 	Panicf(format string, v ...interface{})
 }
 
-func parseFlags(args []string) (*string, *bool) {
+func parseFlags(args []string) (string, bool) {
 	flagSet := flag.NewFlagSet("configuration", flag.ExitOnError)
 	configFile := flagSet.String("config", "/etc/featness-api.conf", "Featness API configuration file")
 	gVersion := flagSet.Bool("version", false, "Print version and exit")
 	flagSet.Parse(args)
 
-	return configFile, gVersion
+	return *configFile, *gVersion
 }
 
 func loadConfigFile(path string, logger Logger) {
@@ -41,15 +41,16 @@ func getRouter() *pat.Router {
 }
 
 func main() {
+	fmt.Printf("%s", os.Args[1:])
 	configFile, gVersion := parseFlags(os.Args[1:])
 
-	if *gVersion {
+	if gVersion {
 		fmt.Printf("featness-api version %s\n", api.Version)
 		return
 	}
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
-	loadConfigFile(*configFile, logger)
+	loadConfigFile(configFile, logger)
 
 	router := getRouter()
 	log.Println("featness-api running at http://localhost:8000...")
