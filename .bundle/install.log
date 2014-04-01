@@ -1,0 +1,27 @@
+# Logfile created on 2014-03-31 17:46:07 -0300 by logger.rb/41954
+I, [2014-03-31T17:46:07.683716 #29734]  INFO -- : 0:  chunky_png (1.3.0) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/chunky_png-1.3.0.gemspec
+I, [2014-03-31T17:46:14.325155 #29734]  INFO -- : 0:  multi_json (1.9.2) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/multi_json-1.9.2.gemspec
+I, [2014-03-31T17:46:18.264949 #29734]  INFO -- : 0:  sass (3.3.4) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/sass-3.3.4.gemspec
+I, [2014-03-31T17:46:21.604146 #29734]  INFO -- : 0:  compass-core (1.0.0.alpha.19) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/compass-core-1.0.0.alpha.19.gemspec
+I, [2014-03-31T17:46:24.035524 #29734]  INFO -- : 0:  compass-import-once (1.0.4) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/compass-import-once-1.0.4.gemspec
+I, [2014-03-31T17:46:24.035926 #29734]  INFO -- : 0:  json (1.8.1) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/json-1.8.1.gemspec
+I, [2014-03-31T17:46:24.036217 #29734]  INFO -- : 0:  rb-fsevent (0.9.4) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/rb-fsevent-0.9.4.gemspec
+I, [2014-03-31T17:46:24.036487 #29734]  INFO -- : 0:  ffi (1.9.3) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/ffi-1.9.3.gemspec
+I, [2014-03-31T17:46:24.036748 #29734]  INFO -- : 0:  rb-inotify (0.9.3) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/rb-inotify-0.9.3.gemspec
+I, [2014-03-31T17:46:24.037001 #29734]  INFO -- : 0:  rb-kqueue (0.2.2) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/rb-kqueue-0.2.2.gemspec
+I, [2014-03-31T17:46:24.037254 #29734]  INFO -- : 0:  listen (1.1.6) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/listen-1.1.6.gemspec
+I, [2014-03-31T17:46:28.302591 #29734]  INFO -- : 0:  compass (1.0.0.alpha.19) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@holmes/specifications/compass-1.0.0.alpha.19.gemspec
+I, [2014-03-31T17:46:28.303114 #29734]  INFO -- : 0:  bundler (1.5.1) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@global/specifications/bundler-1.5.1.gemspec
+I, [2014-03-31T19:36:08.488956 #53323]  INFO -- : 0:  chunky_png (1.3.0) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/chunky_png-1.3.0.gemspec
+I, [2014-03-31T19:36:11.159629 #53323]  INFO -- : 0:  multi_json (1.9.2) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/multi_json-1.9.2.gemspec
+I, [2014-03-31T19:36:14.967093 #53323]  INFO -- : 0:  sass (3.3.4) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/sass-3.3.4.gemspec
+I, [2014-03-31T19:36:18.635434 #53323]  INFO -- : 0:  compass-core (1.0.0.alpha.19) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/compass-core-1.0.0.alpha.19.gemspec
+I, [2014-03-31T19:36:21.084173 #53323]  INFO -- : 0:  compass-import-once (1.0.4) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/compass-import-once-1.0.4.gemspec
+I, [2014-03-31T19:36:25.168457 #53323]  INFO -- : 0:  json (1.8.1) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/json-1.8.1.gemspec
+I, [2014-03-31T19:36:28.496991 #53323]  INFO -- : 0:  rb-fsevent (0.9.4) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/rb-fsevent-0.9.4.gemspec
+I, [2014-03-31T19:36:37.854598 #53323]  INFO -- : 0:  ffi (1.9.3) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/ffi-1.9.3.gemspec
+I, [2014-03-31T19:36:40.243582 #53323]  INFO -- : 0:  rb-inotify (0.9.3) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/rb-inotify-0.9.3.gemspec
+I, [2014-03-31T19:36:42.790280 #53323]  INFO -- : 0:  rb-kqueue (0.2.2) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/rb-kqueue-0.2.2.gemspec
+I, [2014-03-31T19:36:45.503172 #53323]  INFO -- : 0:  listen (1.1.6) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/listen-1.1.6.gemspec
+I, [2014-03-31T19:36:50.413592 #53323]  INFO -- : 0:  compass (1.0.0.alpha.19) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@featness/specifications/compass-1.0.0.alpha.19.gemspec
+I, [2014-03-31T19:36:50.414182 #53323]  INFO -- : 0:  bundler (1.5.1) from /Users/heynemann/.rvm/gems/ruby-2.0.0-p353@global/specifications/bundler-1.5.1.gemspec

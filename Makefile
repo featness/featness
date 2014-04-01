@@ -78,11 +78,26 @@ _go_test:
 	@go clean ./...
 	@godep go test ./...
 
-build: _build_api
+build: _build_api _build_dashboard
 
 _build_api:
 	@rm -rf ./cmd/featness-api
-	@godep go build -ldflags "-s" -o ./cmd/featness-api ./api-server/...
-	@chmod +x ./cmd/featness-api
+	@godep go build -o ./cmd/featness-api ./api-server/...
+	@echo "featness-api binary up-to-date."
+
+_build_dashboard: _build_web_app
+	@rm -rf ./cmd/featness-dashboard
+	@godep go build -o ./cmd/featness-dashboard ./dashboard-server/...
+	@echo "featness-dashboard binary up-to-date."
+
+_build_web_app:
+	@cd dashboard && grunt build
+	@mkdir -p ./dashboard-server/dashboard
+	@cp -r dashboard/dist/* ./dashboard-server/dashboard
+	@cd dashboard-server && go-bindata dashboard/...
+	@rm -rf ./dashboard-server/dashboard
 
 test: _go_test
+
+run-dashboard:
+	@cd dashboard && grunt serve
