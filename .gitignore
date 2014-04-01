@@ -22,3 +22,4 @@ _testmain.go
 *.exe
 
 dashboard-server/bindata.go
+.DS_Store

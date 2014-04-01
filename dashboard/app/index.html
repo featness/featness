@@ -9,6 +9,10 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
+    <meta name="google-signin-clientid" content="48134245629-6uphe1dpbcb80h842okpri6d4eoeqqqt.apps.googleusercontent.com" />
+    <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.profile.emails.read" />
+    <meta name="google-signin-cookiepolicy" content="single_host_origin" />
+
     <link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100' rel='stylesheet' type='text/css'>
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
@@ -49,6 +53,14 @@
 
        ga('create', 'UA-XXXXX-X');
        ga('send', 'pageview');
+    </script>
+
+    <script type="text/javascript">
+      (function() {
+       var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+       po.src = 'https://apis.google.com/js/client:plusone.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+     })();
     </script>
 
     <!--[if lt IE 9]>

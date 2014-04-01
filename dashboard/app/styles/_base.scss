@@ -4,6 +4,7 @@ body {
     padding-bottom: 20px;
     font-family: 'Roboto Slab', serif;
     font-weight: 400;
+    color: $dark-gray;
 }
 
 a {
@@ -12,5 +13,18 @@ a {
 
     &:hover {
         opacity: 0.9;
+    }
+}
+
+a.logo {
+    font-size: 100%;
+    color: $sand;
+
+    strong {
+        color: $blue;
+    }
+
+    &:hover {
+        text-decoration: none;
     }
 }
