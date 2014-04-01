@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/pat"
 	"github.com/tsuru/config"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -45,5 +46,7 @@ func main() {
 
 	loadConfigFile(*configFile)
 
-	//router := getRouter()
+	router := getRouter()
+	log.Println("featness-api running at http://localhost:8000...")
+	http.ListenAndServe(":8000", router)
 }
