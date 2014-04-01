@@ -65,10 +65,20 @@ git:
 bzr:
 	$(if $(shell bzr), , $(error $(BZR_ERROR)))
 
+setup: godep setup-node setup-ruby
+
+setup-node:
+	@cd dashboard && npm install .
+	@cd dashboard && bower install
+
+setup-ruby:
+	@bundle
+
 godep:
 	@go get github.com/tools/godep
 	@godep restore ./...
 	@godep go clean ./...
+	@go get github.com/jteeuwen/go-bindata/...
 
 check-test-services:
 	$(call check-service,MongoDB,27017)
