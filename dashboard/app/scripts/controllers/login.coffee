@@ -1,9 +1,8 @@
 'use strict'
 
+class LoginCtrl
+  constructor: (@scope) ->
+
 angular.module('dashboardApp')
   .controller 'LoginCtrl', ($scope) ->
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate'
-      'AngularJS'
-      'Karma'
-    ]
+    $scope.model = new LoginCtrl($scope)

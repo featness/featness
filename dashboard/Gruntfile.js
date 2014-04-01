@@ -1,6 +1,8 @@
 // Generated on 2014-03-31 using generator-angular 0.8.0
 'use strict';
 
+var fs = require('fs');
+
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
@@ -65,7 +67,30 @@ module.exports = function (grunt) {
         port: 9000,
         // Change this to '0.0.0.0' to access the server from outside.
         hostname: 'localhost',
-        livereload: 35729
+        livereload: 35729,
+        middleware: function(connect, options, middlewares) {
+          var serveRoutes = function(req, res, next) {
+            if (req.url == '/login') {
+              fs.readFile('./app/index.html', function(error, content) {
+                if (error) {
+                  res.writeHead(500);
+                  res.end();
+                } else {
+                  res.writeHead(200, { 'Content-Type': 'text/html' });
+                  res.end(content, 'utf-8');
+                }
+              });
+
+              return;
+            }
+
+            return next();
+          };
+
+          middlewares.push(serveRoutes);
+
+          return middlewares;
+        }
       },
       livereload: {
         options: {
