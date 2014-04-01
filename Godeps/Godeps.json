@@ -22,6 +22,19 @@
 			"Rev": "c746f6995da451a2c9e20a68dfb91d2cf25ffa79"
 		},
 		{
+			"ImportPath": "github.com/kr/pretty",
+			"Comment": "go.weekly.2011-12-22-18-gbc9499c",
+			"Rev": "bc9499caa0f45ee5edb2f0209fbd61fbf3d9018f"
+		},
+		{
+			"ImportPath": "github.com/kr/text",
+			"Rev": "6807e777504f54ad073ecef66747de158294b639"
+		},
+		{
+			"ImportPath": "github.com/maraino/go-mock",
+			"Rev": "1c1a8847902be0b4db358ab1e2e1225fbdb224c7"
+		},
+		{
 			"ImportPath": "github.com/tsuru/config",
 			"Rev": "97d4a7511ea73e02a62a1a381d17110b5372cc40"
 		},
