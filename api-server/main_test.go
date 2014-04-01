@@ -55,8 +55,7 @@ func (s *Suite) TestLoadConfig(c *gocheck.C) {
 
 func (s *Suite) TestLoadConfigWhenWrongPath(c *gocheck.C) {
 	logger := &LoggerTest{}
-	logger.When("Panicf", `Could not find featness-api config file. Searched on %s.
-	For an example conf check featness-api/etc/featness-api.conf file.\n %s`).Times(1)
+	logger.When("Panicf", mock.Any).Times(1)
 
 	loadConfigFile("wrong-path.conf", logger)
 
