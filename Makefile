@@ -99,5 +99,8 @@ _build_web_app:
 
 test: _go_test
 
+run-api:
+	@godep go run ./api-server/main.go --config ./api/etc/local.conf
+
 run-dashboard:
 	@cd dashboard && grunt serve

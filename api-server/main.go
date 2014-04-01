@@ -23,7 +23,7 @@ func loadConfigFile(path string) {
 	err := config.ReadAndWatchConfigFile(path)
 	if err != nil {
 		msg := `Could not find featness-api config file. Searched on %s.
-	For an example conf check featness-api/etc/featness-api.conf file.\n %s`
+	For an example conf check api/etc/local.conf file.\n %s`
 		log.Panicf(msg, path, err)
 	}
 }
@@ -36,14 +36,14 @@ func getRouter() *pat.Router {
 }
 
 func main() {
-	configFile, gVersion := parseFlags(os.Args)
+	configFile, gVersion := parseFlags(os.Args[1:])
 
 	if *gVersion {
 		fmt.Printf("featness-api version %s\n", api.Version)
 		return
 	}
 
-	loadConfigFile(configFile)
+	loadConfigFile(*configFile)
 
 	//router := getRouter()
 }
