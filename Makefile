@@ -76,7 +76,7 @@ check-test-services:
 
 _go_test:
 	@go clean ./...
-	@godep go test ./...
+	@godep go test ./... -v
 
 build: _build_api _build_dashboard
 
