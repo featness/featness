@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"launchpad.net/gocheck"
 	"net/http"
+	"github.com/tsuru/config"
 	"testing"
 )
 
@@ -16,7 +17,10 @@ type Suite struct {
 var _ = gocheck.Suite(&Suite{})
 
 func (s *Suite) TestLoadConfig(c *gocheck.C) {
-	c.Assert(nil, gocheck.IsNil)
+	loadConfigFile("../testdata/etc/featness-api1.conf")
+	value, err := config.GetBool("my_data")
+	c.Assert(value, gocheck.Equals, true)
+	c.Assert(err, gocheck.IsNil)
 }
 
 func routeExists(method string, url string) bool {

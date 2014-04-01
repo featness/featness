@@ -82,7 +82,7 @@ build: _build_api
 
 _build_api:
 	@rm -rf ./cmd/featness-api
-	@godep go build -o ./cmd/featness-api ./api-server/...
+	@godep go build -ldflags "-s" -o ./cmd/featness-api ./api-server/...
 	@chmod +x ./cmd/featness-api
 
 test: _go_test

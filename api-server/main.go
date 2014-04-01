@@ -21,12 +21,12 @@ func parseFlags(args []string) (*string, *bool) {
 	return configFile, gVersion
 }
 
-func loadConfigFile(path *string) {
-	err := config.ReadAndWatchConfigFile(*path)
+func loadConfigFile(path string) {
+	err := config.ReadAndWatchConfigFile(path)
 	if err != nil {
 		msg := `Could not find featness-api config file. Searched on %s.
 	For an example conf check featness-api/etc/featness-api.conf file.\n %s`
-		log.Panicf(msg, *path, err)
+		log.Panicf(msg, path, err)
 	}
 }
 
