@@ -10,6 +10,10 @@ import (
 	"os"
 )
 
+type Logger interface {
+	Panicf(format string, v ...interface{})
+}
+
 func parseFlags(args []string) (*string, *bool) {
 	flagSet := flag.NewFlagSet("configuration", flag.ExitOnError)
 	configFile := flagSet.String("config", "/etc/featness-api.conf", "Featness API configuration file")
@@ -19,12 +23,12 @@ func parseFlags(args []string) (*string, *bool) {
 	return configFile, gVersion
 }
 
-func loadConfigFile(path string) {
+func loadConfigFile(path string, logger Logger) {
 	err := config.ReadAndWatchConfigFile(path)
 	if err != nil {
 		msg := `Could not find featness-api config file. Searched on %s.
 	For an example conf check featness-api/etc/featness-api.conf file.\n %s`
-		log.Panicf(msg, path, err)
+		logger.Panicf(msg, path, err)
 	}
 }
 
@@ -43,7 +47,8 @@ func main() {
 		return
 	}
 
-	loadConfigFile(configFile)
+	logger := log.New(os.Stdout, "", log.LstdFlags)
+	loadConfigFile(*configFile, logger)
 
 	//router := getRouter()
 }
