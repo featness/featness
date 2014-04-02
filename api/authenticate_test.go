@@ -9,7 +9,7 @@ import (
 )
 
 func (s *Suite) TestAuthenticateWithGoogle(c *gocheck.C) {
-	fmt.Println("GOOGLE_CLIENT_ID:")
+	loadConfig("../testdata/etc/featness-api1.conf")
 	clientId := os.Getenv("GOOGLE_CLIENT_ID")
 	if clientId == "" {
 		c.Fatal("Please put your google oauth app client id in an environment variable called GOOGLE_CLIENT_ID.\n")
@@ -31,13 +31,13 @@ func (s *Suite) TestAuthenticateWithGoogle(c *gocheck.C) {
 	// X-AUTH-DATA="heynemann@gmail.com;qwi9129349124912"
 	request, err := http.NewRequest("GET", "/authenticate/google", nil)
 	c.Assert(err, gocheck.IsNil)
-	request.Header.Add("X-AUTH-DATA", fmt.Sprintf("heynemann@gmail.com;%s", transport.Token))
+	request.Header.Add("X-Auth-Data", fmt.Sprintf("heynemann@gmail.com;%s", transport.Token.AccessToken))
 
 	AuthenticateWithGoogle(recorder, request)
 
 	c.Assert(recorder.Code, gocheck.Equals, http.StatusOK)
 
-	header, ok := recorder.HeaderMap["X-AUTH-TOKEN"]
+	header, ok := recorder.HeaderMap["X-Auth-Token"]
 	c.Assert(ok, gocheck.Equals, true)
 	c.Assert(header, gocheck.NotNil)
 }
