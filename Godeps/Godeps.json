@@ -6,6 +6,15 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "code.google.com/p/goauth2/oauth",
+			"Comment": "weekly-43",
+			"Rev": "d4571a95014ff1fdd0055dc0f6b7e977a42b1e5a"
+		},
+		{
+			"ImportPath": "github.com/dgrijalva/jwt-go",
+			"Rev": "c9e6fdb7e7ee628f7d2308e205ff74a9b30751a8"
+		},
+		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "11ae2122d92bb0b626705bccf3795d3e51ffb1de"
 		},
