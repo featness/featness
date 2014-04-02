@@ -41,7 +41,6 @@ func getRouter() *pat.Router {
 }
 
 func main() {
-	fmt.Printf("%s", os.Args[1:])
 	configFile, gVersion := parseFlags(os.Args[1:])
 
 	if gVersion {
