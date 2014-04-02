@@ -6,8 +6,8 @@ class LoginCtrl
   authenticateWithGoogle: ->
     @auth.authenticateWithGoogle(@handleAuthenticated)
 
-  handleAuthenticated: (authResult, profile) ->
-    console.log(authResult, profile)
+  handleAuthenticated: (email, token) ->
+    console.log(email, token)
 
 angular.module('dashboardApp')
   .controller 'LoginCtrl', ($scope, AuthService) ->

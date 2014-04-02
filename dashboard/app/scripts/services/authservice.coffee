@@ -1,7 +1,8 @@
 'use strict'
 
 class AuthService
-  constructor: ->
+  constructor: (@http) ->
+    @storage = window.sessionStorage
 
   isAuthenticated: ->
     return false
@@ -19,8 +20,31 @@ class AuthService
 
   handleProfileLoaded: (authResult, callback) ->
     return (profile) =>
-      callback(authResult, profile)
+      @getAuthenticationHeader(authResult, profile, callback)
+
+  getAuthenticationHeader: (authResult, profile, callback) ->
+    userAccount = ""
+    for email in profile.emails
+      if email.type == "account"
+        userAccount = email.value
+        break
+
+    @http(
+      url: "http://local.featness.com:8000/authenticate/google",
+      method: "POST",
+      headers: {
+        'X-Auth-Data': "#{profile.emails[0].value};#{authResult.access_token}"
+      }
+      data: {}
+    ).success((data, status, headers, config) =>
+      token = headers('X-Auth-Token')
+      @storage.setItem("featness-token", token)
+      @storage.setItem("featness-account", userAccount)
+      callback(userAccount, token)
+    ).error((data, status, headers, config) =>
+      callback(null, null)
+    )
 
 angular.module('dashboardApp')
-  .service 'AuthService', ->
-    return new AuthService()
+  .service 'AuthService', ($http) ->
+    return new AuthService($http)

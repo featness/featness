@@ -33,9 +33,27 @@ func loadConfigFile(path string, logger Logger) {
 	}
 }
 
+func crossDomain(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, X-Auth-Data, X-Auth-Token")
+	w.WriteHeader(http.StatusOK)
+}
+
+func AllowCrossDomainFunc(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+		w.Header().Set("Access-Control-Expose-Headers", "Accept, Content-Type, X-Auth-Data, X-Auth-Token")
+		handler(w, r)
+	}
+}
+
 func getRouter() *pat.Router {
 	router := pat.New()
-	router.Get("/healthcheck", api.Healthcheck)
+	router.Get("/healthcheck", AllowCrossDomainFunc(api.Healthcheck))
+	router.Post("/authenticate/google", AllowCrossDomainFunc(api.AuthenticateWithGoogle))
+	router.Add("OPTIONS", "/", http.HandlerFunc(crossDomain))
 
 	return router
 }
