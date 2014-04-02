@@ -2,7 +2,6 @@ package api
 
 import (
 	"code.google.com/p/goauth2/oauth"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/tsuru/config"
 	"log"
@@ -115,7 +114,6 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request) {
 
 	jwtTokenString, _ := jwtToken.SignedString([]byte(securityKey))
 
-	fmt.Println("AUTHENTICATED!!!")
 	w.Header().Set("X-Auth-Token", jwtTokenString)
 	w.WriteHeader(http.StatusOK)
 }
