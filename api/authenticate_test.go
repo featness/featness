@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/tsuru/config"
 	"launchpad.net/gocheck"
 	"net/http"
 	"net/http/httptest"
@@ -21,6 +22,10 @@ func (s *Suite) TestAuthenticateWithGoogle(c *gocheck.C) {
 	if secret == "" {
 		c.Fatal("Please put your google oauth app client secret in an environment variable called GOOGLE_CLIENT_SECRET.\n")
 	}
+
+	config.Set("google_client_id", clientId)
+	config.Set("google_client_secret", secret)
+	config.Set("google_token_cache_path", "/tmp/cache.json")
 
 	transport := GetGoogleTransport(
 		clientId,

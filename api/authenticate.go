@@ -56,6 +56,21 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(authorizationHeader, ";")
 	email, token := parts[0], parts[1]
 
+	clientId, _ := config.GetString("google_client_id")
+	clientSecret, _ := config.GetString("google_client_secret")
+	cachePath, _ := config.GetString("google_token_cache_path")
+
+	transport := GetGoogleTransport(clientId, clientSecret, cachePath)
+	transport.Token.AccessToken = token
+
+	url := "https://www.googleapis.com/oauth2/v1/userinfo"
+	clientResponse, err := transport.Client().Get(url)
+	defer clientResponse.Body.Close()
+	if err != nil {
+		// SET STATUS CODE TO 401 and LOG ERROR
+		return
+	}
+
 	jwtToken := jwt.New(jwt.GetSigningMethod("HS256"))
 	jwtToken.Claims["token"] = token
 	jwtToken.Claims["sub"] = email
