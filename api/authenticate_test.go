@@ -1,7 +1,9 @@
 package api
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"launchpad.net/gocheck"
 	"net/http"
 	"net/http/httptest"
@@ -40,4 +42,18 @@ func (s *Suite) TestAuthenticateWithGoogle(c *gocheck.C) {
 	header, ok := recorder.HeaderMap["X-Auth-Token"]
 	c.Assert(ok, gocheck.Equals, true)
 	c.Assert(header, gocheck.NotNil)
+
+	buf := new(bytes.Buffer)
+	buf.Write([]byte("my-security-key"))
+	key := buf.Bytes()
+	token, err := jwt.Parse(header[0], func(t *jwt.Token) ([]byte, error) { return key, nil })
+
+	c.Assert(token, gocheck.NotNil)
+
+	c.Assert(token.Valid, gocheck.Equals, true)
+	c.Assert(token.Claims["token"], gocheck.Equals, transport.Token.AccessToken)
+	c.Assert(token.Claims["sub"], gocheck.Equals, "heynemann@gmail.com")
+	c.Assert(token.Claims["iss"], gocheck.Equals, "Google")
+	c.Assert(token.Claims["iat"], gocheck.NotNil)
+	c.Assert(token.Claims["exp"], gocheck.NotNil)
 }
