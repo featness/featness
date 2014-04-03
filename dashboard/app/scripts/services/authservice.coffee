@@ -29,6 +29,7 @@ class AuthService
       @getAuthenticationHeader(authResult, profile, callback)
 
   getAuthenticationHeader: (authResult, profile, callback) ->
+    console.log(authResult, profile)
     userAccount = ""
     for email in profile.emails
       if email.type == "account"
@@ -39,14 +40,17 @@ class AuthService
       url: "http://local.featness.com:8000/authenticate/google",
       method: "POST",
       headers: {
-        'X-Auth-Data': "#{profile.emails[0].value};#{authResult.code}"
+        'X-Auth-Data': "#{profile.emails[0].value};#{authResult.access_token}"
       }
       data: {}
     ).success((data, status, headers, config) =>
       token = headers('X-Auth-Token')
-      @storage.setItem("featness-token", token)
-      @storage.setItem("featness-account", userAccount)
-      callback(userAccount, token)
+      if token?
+        @storage.setItem("featness-token", token)
+        @storage.setItem("featness-account", userAccount)
+        callback(userAccount, token)
+      else
+        callback(null, null)
     ).error((data, status, headers, config) =>
       callback(null, null)
     )

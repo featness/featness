@@ -7,7 +7,10 @@ class LoginCtrl
     @auth.authenticateWithGoogle(@handleAuthenticated)
 
   handleAuthenticated: (email, token) =>
-    @location.path('/')
+    if email? and token?
+      @location.path('/')
+    else
+      alert("WOOT?")
 
 angular.module('dashboardApp')
   .controller 'LoginCtrl', ($scope, $location, AuthService) ->
