@@ -38,6 +38,10 @@ func (s *Suite) TestRouterHasHealthcheck(c *gocheck.C) {
 	c.Assert(routeExists("GET", "/healthcheck"), gocheck.Equals, true)
 }
 
+func (s *Suite) TestRouterHasAuthGoogle(c *gocheck.C) {
+	c.Assert(routeExists("POST", "/authenticate/google"), gocheck.Equals, true)
+}
+
 func (s *Suite) TestLoadConfig(c *gocheck.C) {
 	logger := &LoggerTest{}
 	logger.When("Panicf").Times(0)
