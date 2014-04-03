@@ -27,11 +27,13 @@ func (s *Suite) TestAuthenticateWithGoogle(c *gocheck.C) {
 	config.Set("google_client_secret", secret)
 	config.Set("google_token_cache_path", "/tmp/cache.json")
 
-	transport := GetGoogleTransport(
+	transport, err := GetGoogleTransport(
 		clientId,
 		secret,
 		"/tmp/cache.json",
 	)
+
+	c.Assert(err, gocheck.IsNil)
 
 	recorder := httptest.NewRecorder()
 

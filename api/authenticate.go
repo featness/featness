@@ -2,6 +2,7 @@ package api
 
 import (
 	"code.google.com/p/goauth2/oauth"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/tsuru/config"
 	"log"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-func GetGoogleTransport(clientId string, clientSecret string, cacheFilePath string) *oauth.Transport {
+func GetGoogleTransport(clientId string, clientSecret string, cacheFilePath string) (*oauth.Transport, error) {
 	oauthConfig := &oauth.Config{
 		ClientId:     clientId,
 		ClientSecret: clientSecret,
@@ -25,8 +26,9 @@ func GetGoogleTransport(clientId string, clientSecret string, cacheFilePath stri
 	code := os.Getenv("GOOGLE_OAUTH_CODE")
 	if code == "" {
 		url := oauthConfig.AuthCodeURL("")
-		log.Println("Visit this URL (%s) to get a code, then put it in an environment variable called GOOGLE_OAUTH_CODE.\n", url)
-		return nil
+		msg := fmt.Sprintf("Visit this URL (%s) to get a code, then put it in an environment variable called GOOGLE_OAUTH_CODE.\n", url)
+		log.Println(msg)
+		return nil, fmt.Errorf(msg)
 	}
 
 	transport := &oauth.Transport{Config: oauthConfig}
@@ -37,14 +39,15 @@ func GetGoogleTransport(clientId string, clientSecret string, cacheFilePath stri
 		// Exchange the authorization code for an access token.
 		token, err = transport.Exchange(code)
 		if err != nil {
-			log.Println("Exchange:", err)
-			return nil
+			msg := fmt.Sprintf("Error when trying to get a new token with Google (%v).\n", err)
+			log.Println(msg)
+			return nil, fmt.Errorf(msg)
 		}
 	}
 
 	transport.Token = token
 
-	return transport
+	return transport, nil
 }
 
 func StrConfigOrEnv(key string) string {
@@ -81,9 +84,9 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transport := GetGoogleTransport(clientId, clientSecret, cachePath)
-	if transport == nil {
-		log.Println("Google transport could not be configured.")
+	transport, err := GetGoogleTransport(clientId, clientSecret, cachePath)
+	if err != nil {
+		log.Println(fmt.Sprintf("Google transport could not be configured: %v", err))
 		// SET STATUS CODE TO 401 and LOG ERROR
 		return
 	}
@@ -93,7 +96,7 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request) {
 	clientResponse, err := transport.Client().Get(url)
 	defer clientResponse.Body.Close()
 	if err != nil {
-		log.Println("Access token was invalid.")
+		log.Println(fmt.Sprintf("Access token was invalid: %v.", err))
 		// SET STATUS CODE TO 401 and LOG ERROR
 		return
 	}
