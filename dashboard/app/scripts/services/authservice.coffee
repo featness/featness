@@ -39,7 +39,7 @@ class AuthService
       url: "http://local.featness.com:8000/authenticate/google",
       method: "POST",
       headers: {
-        'X-Auth-Data': "#{profile.emails[0].value};#{authResult.access_token}"
+        'X-Auth-Data': "#{profile.emails[0].value};#{authResult.code}"
       }
       data: {}
     ).success((data, status, headers, config) =>

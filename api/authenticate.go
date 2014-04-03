@@ -12,7 +12,15 @@ import (
 	"time"
 )
 
-func GetGoogleTransport(clientId string, clientSecret string, cacheFilePath string) (*oauth.Transport, error) {
+func GetGoogleOAuthConfig() (*oauth.Config, error) {
+	clientId := StrConfigOrEnv("google_client_id")
+	clientSecret := StrConfigOrEnv("google_client_secret")
+	cachePath := StrConfigOrEnv("google_token_cache_path")
+
+	if clientId == "" || clientSecret == "" {
+		return nil, fmt.Errorf("Client ID or Client Secret were not found in config (or environment variable).")
+	}
+
 	oauthConfig := &oauth.Config{
 		ClientId:     clientId,
 		ClientSecret: clientSecret,
@@ -20,34 +28,53 @@ func GetGoogleTransport(clientId string, clientSecret string, cacheFilePath stri
 		Scope:        "https://www.googleapis.com/auth/plus.profile.emails.read",
 		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
 		TokenURL:     "https://accounts.google.com/o/oauth2/token",
-		TokenCache:   oauth.CacheFile(cacheFilePath),
+		TokenCache:   nil,
 	}
 
-	code := os.Getenv("GOOGLE_OAUTH_CODE")
-	if code == "" {
-		url := oauthConfig.AuthCodeURL("")
-		msg := fmt.Sprintf("Visit this URL (%s) to get a code, then put it in an environment variable called GOOGLE_OAUTH_CODE.\n", url)
-		log.Println(msg)
-		return nil, fmt.Errorf(msg)
+	if cachePath != "" {
+		oauthConfig.TokenCache = oauth.CacheFile(cachePath)
+	}
+
+	return oauthConfig, nil
+}
+
+func GetGoogleTransport(code string) (*oauth.Transport, error) {
+	oauthConfig, err := GetGoogleOAuthConfig()
+	if err != nil {
+		return nil, err
 	}
 
 	transport := &oauth.Transport{Config: oauthConfig}
 
 	// Try to pull the token from the cache; if this fails, we need to get one.
-	token, err := oauthConfig.TokenCache.Token()
-	if err != nil {
-		// Exchange the authorization code for an access token.
-		token, err = transport.Exchange(code)
+	var token *oauth.Token
+
+	if oauthConfig.TokenCache != nil {
+		token, err = oauthConfig.TokenCache.Token()
+	}
+
+	if token == nil {
+		token, err = RefreshGoogleToken(code, transport)
+
 		if err != nil {
-			msg := fmt.Sprintf("Error when trying to get a new token with Google (%v).\n", err)
-			log.Println(msg)
-			return nil, fmt.Errorf(msg)
+			return nil, err
 		}
 	}
 
 	transport.Token = token
 
 	return transport, nil
+}
+
+func RefreshGoogleToken(code string, transport *oauth.Transport) (*oauth.Token, error) {
+	// Exchange the authorization code for an access token.
+	token, err := transport.Exchange(code)
+	if err != nil {
+		msg := fmt.Sprintf("error when trying to get a new token with Google (%v).\n", err)
+		return nil, fmt.Errorf(msg)
+	}
+
+	return token, nil
 }
 
 func StrConfigOrEnv(key string) string {
@@ -63,60 +90,74 @@ func StrConfigOrEnv(key string) string {
 	return value
 }
 
-func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request) {
-	authorizationHeader := r.Header.Get("X-Auth-Data")
-	if len(authorizationHeader) == 0 {
-		log.Println("Authorization header was not found in request.")
-		// SET STATUS CODE TO 401
-		return
-	}
+type AuthenticationProvider func(token string, account string) (string, error)
 
-	parts := strings.Split(authorizationHeader, ";")
-	email, token := parts[0], parts[1]
-
-	clientId := StrConfigOrEnv("google_client_id")
-	clientSecret := StrConfigOrEnv("google_client_secret")
-	cachePath := StrConfigOrEnv("google_token_cache_path")
-
-	if clientId == "" || clientSecret == "" || cachePath == "" {
-		log.Println("Client ID, or Secret or Cache Path were not found in config (or environment variable).")
-		// SET STATUS CODE TO 401 and LOG ERROR
-		return
-	}
-
-	transport, err := GetGoogleTransport(clientId, clientSecret, cachePath)
+func GoogleAuthenticationProvider(code string, account string) (string, error) {
+	transport, err := GetGoogleTransport(code)
 	if err != nil {
-		log.Println(fmt.Sprintf("Google transport could not be configured: %v", err))
-		// SET STATUS CODE TO 401 and LOG ERROR
-		return
+		return "", fmt.Errorf("Google transport could not be configured: %v", err)
 	}
-	transport.Token.AccessToken = token
 
 	url := "https://www.googleapis.com/oauth2/v1/userinfo"
 	clientResponse, err := transport.Client().Get(url)
 	defer clientResponse.Body.Close()
+
+	if err != nil || clientResponse.Status == "401" {
+		return "", fmt.Errorf("access token was invalid: %v.", err)
+	}
+
+	// TODO: Verify if token e-mail account is the same as the e-mail passed
+
+	return transport.Token.AccessToken, nil
+}
+
+func Authenticate(provider string, token string, email string, authenticator AuthenticationProvider) (string, error) {
+	token, err := authenticator(token, email)
+
 	if err != nil {
-		log.Println(fmt.Sprintf("Access token was invalid: %v.", err))
-		// SET STATUS CODE TO 401 and LOG ERROR
-		return
+		return "", fmt.Errorf("error authenticating with provider %s: %v", provider, err)
 	}
 
 	jwtToken := jwt.New(jwt.GetSigningMethod("HS256"))
 	jwtToken.Claims["token"] = token
 	jwtToken.Claims["sub"] = email
-	jwtToken.Claims["iss"] = "Google"
+	jwtToken.Claims["iss"] = provider
 	jwtToken.Claims["iat"] = time.Now().Unix()
 	jwtToken.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 	securityKey, err := config.GetString("security_key")
 	if err != nil {
-		log.Println("Security key could not be found in configuration file.")
-		// SET STATUS CODE TO 401 and LOG ERROR
-		return
+		return "", fmt.Errorf("security key could not be found in configuration file.")
 	}
 
 	jwtTokenString, _ := jwtToken.SignedString([]byte(securityKey))
 
-	w.Header().Set("X-Auth-Token", jwtTokenString)
+	if err != nil {
+		return "", fmt.Errorf("security Token could not be generated (%v).", err)
+	}
+
+	return jwtTokenString, nil
+}
+
+func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request) {
+	authorizationHeader := r.Header.Get("X-Auth-Data")
+	if len(authorizationHeader) == 0 {
+		log.Println("authorization header was not found in request.")
+		// SET STATUS CODE TO 401
+		return
+	}
+
+	parts := strings.Split(authorizationHeader, ";")
+	email, code := parts[0], parts[1]
+
+	token, err := Authenticate("Google", code, email, GoogleAuthenticationProvider)
+
+	if err != nil {
+		log.Println(err)
+		// SET STATUS CODE TO 401
+		return
+	}
+
+	w.Header().Set("X-Auth-Token", token)
 	w.WriteHeader(http.StatusOK)
 }
