@@ -1,14 +1,14 @@
 'use strict'
 
 class LoginCtrl
-  constructor: (@scope, @auth) ->
+  constructor: (@scope, @location, @auth) ->
 
   authenticateWithGoogle: ->
     @auth.authenticateWithGoogle(@handleAuthenticated)
 
-  handleAuthenticated: (email, token) ->
-    console.log(email, token)
+  handleAuthenticated: (email, token) =>
+    @location.path('/')
 
 angular.module('dashboardApp')
-  .controller 'LoginCtrl', ($scope, AuthService) ->
-    $scope.model = new LoginCtrl($scope, AuthService)
+  .controller 'LoginCtrl', ($scope, $location, AuthService) ->
+    $scope.model = new LoginCtrl($scope, $location, AuthService)

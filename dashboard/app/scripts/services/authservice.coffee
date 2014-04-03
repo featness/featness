@@ -5,7 +5,13 @@ class AuthService
     @storage = window.sessionStorage
 
   isAuthenticated: ->
-    return false
+    return @getToken()?
+  
+  getToken: ->
+    return @storage.getItem("featness-token")
+
+  getAccount: ->
+    return @storage.getItem("featness-account")
 
   authenticateWithGoogle: (callback) ->
     gapi.auth.signIn(
