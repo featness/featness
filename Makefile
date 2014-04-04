@@ -105,6 +105,7 @@ _build_web_app:
 	@mkdir -p ./dashboard-server/dashboard
 	@cp -r dashboard/dist/* ./dashboard-server/dashboard
 	@cd dashboard-server && go-bindata dashboard/...
+	@rm -rf dashboard/dist
 	@rm -rf ./dashboard-server/dashboard
 
 test: _go_test

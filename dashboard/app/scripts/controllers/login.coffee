@@ -2,15 +2,22 @@
 
 class LoginCtrl
   constructor: (@scope, @location, @auth) ->
+    @auth.initializeFacebook(@handleAuthenticated)
 
   authenticateWithGoogle: ->
     @auth.authenticateWithGoogle(@handleAuthenticated)
+
+  authenticateWithFacebook: ->
+    @auth.authenticateWithFacebook(@handleAuthenticated)
 
   handleAuthenticated: (email, token) =>
     if email? and token?
       @location.path('/')
     else
-      alert("WOOT?")
+      @authenticationFailed()
+
+  authenticationFailed: ->
+    alert('WOOT?')  # TODO CHANGE THIS
 
 angular.module('dashboardApp')
   .controller 'LoginCtrl', ($scope, $location, AuthService) ->

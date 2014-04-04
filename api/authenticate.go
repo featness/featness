@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/tsuru/config"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -50,4 +52,27 @@ func Authenticate(provider string, token string, email string, authenticator Aut
 	}
 
 	return jwtTokenString, nil
+}
+
+func AuthenticationRoute(w http.ResponseWriter, r *http.Request, providerName string, authenticator AuthenticationProvider) {
+	authorizationHeader := r.Header.Get("X-Auth-Data")
+	if len(authorizationHeader) == 0 {
+		log.Println("authorization header was not found in request.")
+		// SET STATUS CODE TO 401
+		return
+	}
+
+	parts := strings.Split(authorizationHeader, ";")
+	userAccount, token := parts[0], parts[1]
+
+	token, err := Authenticate(providerName, token, userAccount, authenticator)
+
+	if err != nil {
+		log.Println(err)
+		// SET STATUS CODE TO 401
+		return
+	}
+
+	w.Header().Set("X-Auth-Token", token)
+	w.WriteHeader(http.StatusOK)
 }

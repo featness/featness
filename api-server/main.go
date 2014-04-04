@@ -53,6 +53,7 @@ func getRouter() *pat.Router {
 	router := pat.New()
 	router.Get("/healthcheck", AllowCrossDomainFunc(api.Healthcheck))
 	router.Post("/authenticate/google", AllowCrossDomainFunc(api.AuthenticateWithGoogle))
+	router.Post("/authenticate/facebook", AllowCrossDomainFunc(api.AuthenticateWithFacebook))
 	router.Add("OPTIONS", "/", http.HandlerFunc(crossDomain))
 
 	return router

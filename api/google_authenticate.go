@@ -3,9 +3,7 @@ package api
 import (
 	"code.google.com/p/goauth2/oauth"
 	"fmt"
-	"log"
 	"net/http"
-	"strings"
 )
 
 func GetGoogleOAuthConfig() (*oauth.Config, error) {
@@ -63,24 +61,5 @@ func GoogleAuthenticationProvider(token string, account string) (string, error) 
 }
 
 func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request) {
-	authorizationHeader := r.Header.Get("X-Auth-Data")
-	if len(authorizationHeader) == 0 {
-		log.Println("authorization header was not found in request.")
-		// SET STATUS CODE TO 401
-		return
-	}
-
-	parts := strings.Split(authorizationHeader, ";")
-	email, token := parts[0], parts[1]
-
-	token, err := Authenticate("Google", token, email, GoogleAuthenticationProvider)
-
-	if err != nil {
-		log.Println(err)
-		// SET STATUS CODE TO 401
-		return
-	}
-
-	w.Header().Set("X-Auth-Token", token)
-	w.WriteHeader(http.StatusOK)
+	AuthenticationRoute(w, r, "Google", GoogleAuthenticationProvider)
 }
