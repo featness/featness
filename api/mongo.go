@@ -10,10 +10,8 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"labix.org/v2/mgo"
-	"labix.org/v2/mgo/bson"
 	"strings"
 	"time"
 )
@@ -182,61 +180,16 @@ func CloseSession(sessionId string, mongoSession *mgo.Session) {
 	mongoSession.Close()
 }
 
-// GetCollection returns a reference to a collection for the specified database and collection name
-func GetCollection(mongoSession *mgo.Session, useDatabase string, useCollection string) (*mgo.Collection, error) {
-	return mongoSession.DB(useDatabase).C(useCollection), nil
-}
-
-// CollectionExists returns true if the collection name exists in the specified database
-func CollectionExists(sessionId string, mongoSession *mgo.Session, useDatabase string, useCollection string) bool {
-	database := mongoSession.DB(useDatabase)
-	collections, err := database.CollectionNames()
-
-	if err != nil {
-		return false
-	}
-
-	for _, collection := range collections {
-		if collection == useCollection {
-			return true
-		}
-	}
-
-	return false
-}
-
-// ToString converts the quer map to a string
-func ToString(queryMap bson.M) string {
-	json, err := json.Marshal(queryMap)
-	if err != nil {
-		return ""
-	}
-	return string(json)
-}
-
-// Execute the MongoDB literal function
-func Execute(sessionId string, mongoSession *mgo.Session, databaseName string, collectionName string, mongoCall MongoCall) (err error) {
-	// Capture the specified collection
-	collection, err := GetCollection(mongoSession, databaseName, collectionName)
-	if err != nil {
-		return err
-	}
-
-	// Execute the mongo call
-	err = mongoCall(collection)
-	if err != nil {
-		return err
-	}
-
-	return err
-}
-
 func Conn() (*mgo.Database, error) {
 	session, err := CopyMonotonicSession("featness")
 	if err != nil {
 		return nil, err
 	}
 	return session.DB("featness"), nil
+}
+
+func Close(mongoSession *mgo.Session) {
+	CloseSession("featness", mongoSession)
 }
 
 func Coll(name string) (*mgo.Collection, error) {
