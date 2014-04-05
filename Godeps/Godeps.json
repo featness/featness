@@ -44,12 +44,25 @@
 			"Rev": "1c1a8847902be0b4db358ab1e2e1225fbdb224c7"
 		},
 		{
+			"ImportPath": "github.com/onsi/ginkgo",
+			"Rev": "3632cbe0b58a9005513942e9d4c4920e375d6778"
+		},
+		{
+			"ImportPath": "github.com/onsi/gomega",
+			"Rev": "bad854a45453ec22d99c8bd982e2302f64d3fc37"
+		},
+		{
 			"ImportPath": "github.com/tsuru/config",
 			"Rev": "97d4a7511ea73e02a62a1a381d17110b5372cc40"
 		},
 		{
 			"ImportPath": "gopkg.in/v1/yaml",
 			"Rev": "3d8cfc3754fba03b8f1a0d44ea4e6e870cf86c57"
+		},
+		{
+			"ImportPath": "labix.org/v2/mgo",
+			"Comment": "192",
+			"Rev": "gustavo@niemeyer.net-20130227032437-p5adi6mh3tarjaro"
 		},
 		{
 			"ImportPath": "launchpad.net/gocheck",
