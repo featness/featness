@@ -81,8 +81,8 @@ godep:
 	@go get github.com/jteeuwen/go-bindata/...
 
 check-test-services:
-	$(call check-service,MongoDB,27017)
-	$(call check-service,Redis,6379)
+	$(call check-service,MongoDB,3333)
+	$(call check-service,Redis,4444)
 
 _go_test:
 	@go clean ./...
@@ -110,8 +110,24 @@ _build_web_app:
 
 test: _go_test
 
-run-api:
+run-api: check-test-services
 	@godep go run ./api-server/main.go --config ./api/etc/local.conf
 
 run-dashboard:
 	@cd dashboard && grunt serve
+
+kill_redis:
+	-redis-cli -p 4444 shutdown
+
+redis: kill_redis
+	redis-server ./redis.conf; sleep 1
+	redis-cli -p 4444 info > /dev/null
+
+kill_mongo:
+	@ps aux | awk '(/mongod/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
+
+mongo: kill_mongo
+	@rm -rf /tmp/featness/mongodata && mkdir -p /tmp/featness/mongodata
+	@mongod --dbpath /tmp/featness/mongodata --logpath /tmp/featness/mongolog --port 3333 --quiet &
+
+deps: mongo redis

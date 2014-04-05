@@ -59,6 +59,25 @@ func getRouter() *pat.Router {
 	return router
 }
 
+func connectToMongo() error {
+	hosts, err := config.GetString("mongo:hosts")
+	if err != nil {
+		return fmt.Errorf("Could not find MongoDB host information (%s).", err)
+	}
+
+	database, err := config.GetString("mongo:database")
+	if err != nil {
+		return fmt.Errorf("Could not find MongoDB database information (%s).", err)
+	}
+
+	username, _ := config.GetString("mongo:username")
+	password, _ := config.GetString("mongo:password")
+
+	fmt.Println("Connecting to mongo at ", hosts, " database: ", database, " user: ", username, " password: ", password)
+
+	return api.MongoStartup("featness", hosts, database, username, password)
+}
+
 func main() {
 	configFile, gVersion := parseFlags(os.Args[1:])
 
@@ -69,6 +88,11 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 	loadConfigFile(configFile, logger)
+	err := connectToMongo()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	router := getRouter()
 	log.Println("featness-api running at http://localhost:8000...")
