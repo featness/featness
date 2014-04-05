@@ -6,15 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 )
 
-func TestHealthcheckHandler(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Healthcheck Handler Suite")
-}
-
-var _ = Describe("Healthcheck", func() {
+var _ = Describe("Healthcheck Handler", func() {
 	It("should return WORKING as result", func() {
 		recorder := httptest.NewRecorder()
 		request, err := http.NewRequest("GET", "/healthcheck", nil)

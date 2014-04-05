@@ -181,11 +181,15 @@ func CloseSession(sessionId string, mongoSession *mgo.Session) {
 }
 
 func Conn() (*mgo.Database, error) {
+	return Db("featness")
+}
+
+func Db(name string) (*mgo.Database, error) {
 	session, err := CopyMonotonicSession("featness")
 	if err != nil {
 		return nil, err
 	}
-	return session.DB("featness"), nil
+	return session.DB(name), nil
 }
 
 func Close(mongoSession *mgo.Session) {

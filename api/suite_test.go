@@ -1,6 +1,8 @@
 package api
 
 import (
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/tsuru/config"
 	"labix.org/v2/mgo"
 	"launchpad.net/gocheck"
@@ -46,4 +48,10 @@ func (s *MongoSuite) SetUpTest(c *gocheck.C) {
 
 func (s *MongoSuite) TearDownTest(c *gocheck.C) {
 	s.session.Close()
+}
+
+func TestAPI(t *testing.T) {
+	RegisterFailHandler(Fail)
+	MongoStartup("featness", "localhost:3334", "featness", "", "")
+	RunSpecs(t, "API Suite")
 }

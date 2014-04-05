@@ -108,7 +108,7 @@ _build_web_app:
 	@rm -rf dashboard/dist
 	@rm -rf ./dashboard-server/dashboard
 
-test: _go_test
+test: mongo_test _go_test
 
 run-api: check-test-services
 	@godep go run ./api-server/main.go --config ./api/etc/local.conf
@@ -129,5 +129,12 @@ kill_mongo:
 mongo: kill_mongo
 	@rm -rf /tmp/featness/mongodata && mkdir -p /tmp/featness/mongodata
 	@mongod --dbpath /tmp/featness/mongodata --logpath /tmp/featness/mongolog --port 3333 --quiet &
+
+kill_mongo_test:
+	@ps aux | awk '(/mongod/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
+
+mongo_test: kill_mongo_test
+	@rm -rf /tmp/featness/mongotestdata && mkdir -p /tmp/featness/mongotestdata
+	@mongod --dbpath /tmp/featness/mongotestdata --logpath /tmp/featness/mongotestlog --port 3334 --quiet &
 
 deps: mongo redis
