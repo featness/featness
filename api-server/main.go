@@ -56,7 +56,6 @@ type SecureFunc func(http.ResponseWriter, *http.Request, *jwt.Token)
 
 func AuthRequiredFunc(handler SecureFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.Header)
 		header, ok := r.Header["X-Auth-Token"]
 
 		if !ok {

@@ -33,7 +33,7 @@ type MongoSuite struct {
 var _ = gocheck.Suite(&MongoSuite{})
 
 func (s *MongoSuite) SetUpSuite(c *gocheck.C) {
-	MongoStartup("featness-tests", "localhost:4444", "featnesstests", "", "")
+	MongoStartup("featness-tests", "localhost:3333", "featnesstests", "", "")
 }
 
 func (s *MongoSuite) SetUpTest(c *gocheck.C) {
