@@ -1,23 +1,47 @@
 package api
 
 import (
+	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
-	"launchpad.net/gocheck"
+	//"launchpad.net/gocheck"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"testing"
 )
 
-func (s *MongoSuite) TestRouterHasAuthGoogle(c *gocheck.C) {
-	teams := s.conn.C("Team")
-	defer teams.Remove(bson.M{"name": "test1"})
-
-	err := teams.Insert(&Team{"test1", []string{"heynemann"}})
-	c.Assert(err, gocheck.IsNil)
-
-	var team Team
-	err = teams.Find(bson.M{"name": "test1"}).One(&team)
-	c.Assert(err, gocheck.IsNil)
-
-	c.Assert(team, gocheck.NotNil)
-	c.Assert(team.Name, gocheck.Equals, "test1")
-	c.Assert(len(team.Members), gocheck.Equals, 1)
-	c.Assert(team.Members[0], gocheck.Equals, "heynemann")
+func TestTeamModel(t *testing.T) {
+	RegisterFailHandler(Fail)
+	MongoStartup("featness-tests", "localhost:3333", "featnesstests", "", "")
+	RunSpecs(t, "Team Model Suite")
 }
+
+var _ = Describe("Team", func() {
+	var (
+		conn  *mgo.Database
+		teams *mgo.Collection
+	)
+
+	BeforeEach(func() {
+		conn, _ = Conn()
+		teams = conn.C("Team")
+		teams.Remove(bson.M{})
+	})
+
+	It("Can get all teams for a given member", func() {
+		err := teams.Insert(
+			&Team{"test1", []string{"heynemann"}},
+			&Team{"test2", []string{"john"}},
+		)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		var team Team
+		err = teams.Find(bson.M{"name": "test1"}).One(&team)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		Expect(team).ShouldNot(BeNil())
+		Expect(team.Name).Should(Equal("test1"))
+		Expect(team.Members).Should(HaveLen(1))
+		Expect(team.Members[0]).Should(Equal("heynemann"))
+	})
+
+})
