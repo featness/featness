@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/tsuru/config"
+	"labix.org/v2/mgo"
 	"launchpad.net/gocheck"
 	"log"
 	"testing"
@@ -22,4 +23,27 @@ func loadConfig(path string) {
 	For an example conf check api/etc/local.conf file.\n %s`
 		log.Panicf(msg, path, err)
 	}
+}
+
+type MongoSuite struct {
+	session *mgo.Session
+	conn    *mgo.Database
+}
+
+var _ = gocheck.Suite(&MongoSuite{})
+
+func (s *MongoSuite) SetUpSuite(c *gocheck.C) {
+	MongoStartup("featness-tests", "localhost:4444", "featnesstests", "", "")
+}
+
+func (s *MongoSuite) SetUpTest(c *gocheck.C) {
+	session, err := CopyMonotonicSession("featness-tests")
+	c.Assert(err, gocheck.IsNil)
+
+	s.session = session
+	s.conn = session.DB("featnesstests")
+}
+
+func (s *MongoSuite) TearDownTest(c *gocheck.C) {
+	s.session.Close()
 }
