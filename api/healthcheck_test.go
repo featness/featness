@@ -1,21 +1,30 @@
 package api
 
 import (
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"io/ioutil"
-	"launchpad.net/gocheck"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 )
 
-func (s *Suite) TestHealthcheck(c *gocheck.C) {
-	recorder := httptest.NewRecorder()
-	request, err := http.NewRequest("GET", "/healthcheck", nil)
-	c.Assert(err, gocheck.IsNil)
-
-	Healthcheck(recorder, request)
-	c.Assert(recorder.Code, gocheck.Equals, http.StatusOK)
-
-	body, err := ioutil.ReadAll(recorder.Body)
-	c.Assert(err, gocheck.IsNil)
-	c.Assert(string(body), gocheck.Equals, "WORKING")
+func TestHealthcheckHandler(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Healthcheck Handler Suite")
 }
+
+var _ = Describe("Healthcheck", func() {
+	It("should return WORKING as result", func() {
+		recorder := httptest.NewRecorder()
+		request, err := http.NewRequest("GET", "/healthcheck", nil)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		Healthcheck(recorder, request)
+		Expect(recorder.Code).Should(Equal(http.StatusOK))
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		Expect(err).ShouldNot(HaveOccurred())
+		Expect(string(body)).Should(Equal("WORKING"))
+	})
+})

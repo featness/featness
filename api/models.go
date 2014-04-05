@@ -16,7 +16,7 @@ func Teams() *mgo.Collection {
 }
 
 func GetTeamsFor(member string) ([]Team, error) {
-	var teams []Team
+	teams := []Team{}
 	err := Teams().Find(bson.M{"members": member}).All(&teams)
 
 	if err != nil {

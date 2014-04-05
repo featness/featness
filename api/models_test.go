@@ -17,31 +17,45 @@ func TestTeamModel(t *testing.T) {
 
 var _ = Describe("Team", func() {
 	var (
-		conn  *mgo.Database
 		teams *mgo.Collection
 	)
 
 	BeforeEach(func() {
-		conn, _ = Conn()
-		teams = conn.C("Team")
+		teams = Teams()
 		teams.Remove(bson.M{})
 	})
 
-	It("Can get all teams for a given member", func() {
-		err := teams.Insert(
-			&Team{"test1", []string{"heynemann"}},
-			&Team{"test2", []string{"john"}},
-		)
-		Expect(err).ShouldNot(HaveOccurred())
+	Context("when the user is in a team", func() {
+		It("Can get all teams for a given member", func() {
+			err := teams.Insert(
+				&Team{"test1", []string{"heynemann"}},
+				&Team{"test2", []string{"john"}},
+			)
+			Expect(err).ShouldNot(HaveOccurred())
 
-		var team Team
-		err = teams.Find(bson.M{"name": "test1"}).One(&team)
-		Expect(err).ShouldNot(HaveOccurred())
+			userTeams, err := GetTeamsFor("heynemann")
+			Expect(err).ShouldNot(HaveOccurred())
 
-		Expect(team).ShouldNot(BeNil())
-		Expect(team.Name).Should(Equal("test1"))
-		Expect(team.Members).Should(HaveLen(1))
-		Expect(team.Members[0]).Should(Equal("heynemann"))
+			Expect(userTeams).Should(HaveLen(1))
+			Expect(userTeams[0].Name).Should(Equal("test1"))
+			Expect(userTeams[0].Members).Should(HaveLen(1))
+			Expect(userTeams[0].Members[0]).Should(Equal("heynemann"))
+		})
+	})
+
+	Context("when the user is in no teams", func() {
+		It("should return an empty list of teams", func() {
+			err := teams.Insert(
+				&Team{"test1", []string{"jane"}},
+				&Team{"test2", []string{"john"}},
+			)
+			Expect(err).ShouldNot(HaveOccurred())
+
+			userTeams, err := GetTeamsFor("heynemann")
+			Expect(err).ShouldNot(HaveOccurred())
+
+			Expect(userTeams).Should(BeEmpty())
+		})
 	})
 
 })
