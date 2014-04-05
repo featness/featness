@@ -2,6 +2,7 @@ package api
 
 import (
 	"labix.org/v2/mgo/bson"
+	"launchpad.net/gocheck"
 )
 
 func (s *MongoSuite) TestRouterHasAuthGoogle(c *gocheck.C) {

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/globoi/featness/api"
 	"github.com/gorilla/pat"
 	"github.com/tsuru/config"
@@ -49,11 +50,44 @@ func AllowCrossDomainFunc(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+var securityKey string
+
+type SecureFunc func(http.ResponseWriter, *http.Request, *jwt.Token)
+
+func AuthRequiredFunc(handler SecureFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.Header)
+		header, ok := r.Header["X-Auth-Token"]
+
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
+			log.Println("X-Auth-Token status was not found.")
+			return
+		}
+
+		token, err := jwt.Parse(header[0], func(t *jwt.Token) ([]byte, error) { return []byte(securityKey), nil })
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			log.Println("X-Auth-Token is not a valid token.")
+			return
+		}
+
+		if !token.Valid {
+			w.WriteHeader(http.StatusUnauthorized)
+			log.Println("X-Auth-Token is not a valid token.")
+			return
+		}
+
+		handler(w, r, token)
+	}
+}
+
 func getRouter() *pat.Router {
 	router := pat.New()
 	router.Get("/healthcheck", AllowCrossDomainFunc(api.Healthcheck))
 	router.Post("/authenticate/google", AllowCrossDomainFunc(api.AuthenticateWithGoogle))
 	router.Post("/authenticate/facebook", AllowCrossDomainFunc(api.AuthenticateWithFacebook))
+	router.Get("/teams", AllowCrossDomainFunc(AuthRequiredFunc(api.GetAllTeams)))
 	router.Add("OPTIONS", "/", http.HandlerFunc(crossDomain))
 
 	return router
@@ -93,6 +127,13 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
+	key, err := config.GetString("security_key")
+	if err != nil {
+		fmt.Printf("There must be an unique security key in the configuration file at %s. None found.\n", configFile)
+		return
+	}
+	securityKey = key
 
 	router := getRouter()
 	log.Println("featness-api running at http://localhost:8000...")
