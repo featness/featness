@@ -86,7 +86,7 @@ check-test-services:
 
 _go_test:
 	@go clean ./...
-	@godep go test ./... -v
+	@godep go test ./... -v -race
 
 build: _build_api _build_dashboard
 
