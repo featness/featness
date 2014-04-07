@@ -5,9 +5,9 @@
 // license that can be found in the LICENSE file.
 
 /*
-	This package provides mongo connectivity support
+   This package provides mongo connectivity support
 */
-package api
+package models
 
 import (
 	"fmt"
