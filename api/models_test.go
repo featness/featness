@@ -51,7 +51,13 @@ var _ = Describe("Models", func() {
 		})
 
 		Context("when the user is logging again", func() {
-
+			It("Shouldn't change the existing ObjectId", func() {
+				user := testUsers[0]
+				newUser, err := GetOrCreateUser(user.Name, user.UserID, user.ImageURL)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(newUser).ShouldNot(BeNil())
+				Expect(user.Id).Should(Equal(newUser.Id))
+			})
 		})
 	})
 
