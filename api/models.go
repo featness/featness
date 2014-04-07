@@ -57,3 +57,25 @@ func GetTeamsFor(member bson.ObjectId) ([]Team, error) {
 
 	return teams, nil
 }
+
+func GetOrCreateTeam(name string, members ...User) (*Team, error) {
+	usersBson := make([]bson.ObjectId, len(members))
+	for i, v := range members {
+		usersBson[i] = v.Id
+	}
+
+	teamsColl := Teams()
+
+	_, err := teamsColl.Upsert(
+		bson.M{"name": name},
+		&Team{bson.NewObjectId(), name, usersBson},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	team := &Team{}
+	err = teamsColl.Find(bson.M{"name": name}).One(team)
+	return team, nil
+}

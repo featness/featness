@@ -64,11 +64,11 @@ var _ = Describe("Models", func() {
 	Context(" - Team model", func() {
 		Context("when the user is in a team", func() {
 			It("Can get all teams for a given member", func() {
-				err := teams.Insert(
-					&Team{bson.NewObjectId(), "test1-team1", []bson.ObjectId{testUsers[0].Id}},
-					&Team{bson.NewObjectId(), "test1-team2", []bson.ObjectId{testUsers[1].Id}},
-				)
+				_, err := GetOrCreateTeam("test1-team1", testUsers[0])
+				_, err2 := GetOrCreateTeam("test1-team2", testUsers[1])
+
 				Expect(err).ShouldNot(HaveOccurred())
+				Expect(err2).ShouldNot(HaveOccurred())
 
 				userTeams, err := GetTeamsFor(testUsers[0].Id)
 				Expect(err).ShouldNot(HaveOccurred())
@@ -82,16 +82,42 @@ var _ = Describe("Models", func() {
 
 		Context("when the user is in no teams", func() {
 			It("should return an empty list of teams", func() {
-				err := teams.Insert(
-					&Team{bson.NewObjectId(), "test2-team1", []bson.ObjectId{testUsers[2].Id}},
-					&Team{bson.NewObjectId(), "test2-team2", []bson.ObjectId{testUsers[3].Id}},
-				)
+				_, err := GetOrCreateTeam("test2-team1", testUsers[2])
+				_, err2 := GetOrCreateTeam("test2-team2", testUsers[3])
+
 				Expect(err).ShouldNot(HaveOccurred())
+				Expect(err2).ShouldNot(HaveOccurred())
 
 				userTeams, err := GetTeamsFor(testUsers[4].Id)
 				Expect(err).ShouldNot(HaveOccurred())
 
 				Expect(userTeams).Should(BeEmpty())
+			})
+		})
+
+		Context("when the team doesn't exist", func() {
+			It("should create team", func() {
+				team, err := GetOrCreateTeam("team1")
+
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(team.Name).Should(Equal("team1"))
+				Expect(team.Members).Should(HaveLen(0))
+			})
+
+			It("should create team with user", func() {
+				team, err := GetOrCreateTeam("team1", testUsers[0])
+
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(team.Name).Should(Equal("team1"))
+				Expect(team.Members).Should(HaveLen(1))
+			})
+
+			It("should create team with users", func() {
+				team, err := GetOrCreateTeam("team1", testUsers[0], testUsers[1])
+
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(team.Name).Should(Equal("team1"))
+				Expect(team.Members).Should(HaveLen(2))
 			})
 		})
 	})
