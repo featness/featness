@@ -45,8 +45,7 @@ func Authenticate(provider string, token string, email string, authenticator Aut
 		return "", fmt.Errorf("security key could not be found in configuration file.")
 	}
 
-	jwtTokenString, _ := jwtToken.SignedString([]byte(securityKey))
-
+	jwtTokenString, err := jwtToken.SignedString([]byte(securityKey))
 	if err != nil {
 		return "", fmt.Errorf("security Token could not be generated (%v).", err)
 	}
@@ -58,7 +57,7 @@ func AuthenticationRoute(w http.ResponseWriter, r *http.Request, providerName st
 	authorizationHeader := r.Header.Get("X-Auth-Data")
 	if len(authorizationHeader) == 0 {
 		log.Println("authorization header was not found in request.")
-		// SET STATUS CODE TO 401
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -69,7 +68,7 @@ func AuthenticationRoute(w http.ResponseWriter, r *http.Request, providerName st
 
 	if err != nil {
 		log.Println(err)
-		// SET STATUS CODE TO 401
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
