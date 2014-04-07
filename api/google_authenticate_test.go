@@ -5,8 +5,9 @@ import (
 	"code.google.com/p/goauth2/oauth"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/tsuru/config"
-	"launchpad.net/gocheck"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -22,58 +23,65 @@ func GetGoogleOAuthCode(oauthConfig *oauth.Config) (string, error) {
 	return code, nil
 }
 
-func (s *Suite) TestAuthenticateWithGoogle(c *gocheck.C) {
-	loadConfig("../testdata/etc/featness-api1.conf")
-	clientId := os.Getenv("GOOGLE_CLIENT_ID")
-	if clientId == "" {
-		c.Skip("Please put your google oauth app client id in an environment variable called GOOGLE_CLIENT_ID.\n")
-	}
+var _ = Describe("API google authenticate Module", func() {
 
-	secret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	if secret == "" {
-		c.Skip("Please put your google oauth app client secret in an environment variable called GOOGLE_CLIENT_SECRET.\n")
-	}
+	Context("when GoogleAuthenticationProvider is called", func() {
 
-	config.Set("google_client_id", clientId)
-	config.Set("google_client_secret", secret)
-	config.Set("google_token_cache_path", "/tmp/cache.json")
+		It("should have generate token", func() {
+			loadConfig("../testdata/etc/featness-api1.conf")
+			clientId := os.Getenv("GOOGLE_CLIENT_ID")
+			if clientId == "" {
+				fmt.Println("Please put your google oauth app client id in an environment variable called GOOGLE_CLIENT_ID.\n")
+			}
 
-	oauthConfig, err := GetGoogleOAuthConfig()
-	if err != nil {
-		c.Skip(err.Error())
-	}
+			secret := os.Getenv("GOOGLE_CLIENT_SECRET")
+			if secret == "" {
+				fmt.Println("Please put your google oauth app client secret in an environment variable called GOOGLE_CLIENT_SECRET.\n")
+			}
 
-	code, err := GetGoogleOAuthCode(oauthConfig)
-	if err != nil {
-		c.Skip(err.Error())
-		return
-	}
+			config.Set("google_client_id", clientId)
+			config.Set("google_client_secret", secret)
+			config.Set("google_token_cache_path", "/tmp/cache.json")
 
-	recorder := httptest.NewRecorder()
+			oauthConfig, err := GetGoogleOAuthConfig()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 
-	request, err := http.NewRequest("GET", "/authenticate/google", nil)
-	c.Assert(err, gocheck.IsNil)
-	request.Header.Add("X-Auth-Data", fmt.Sprintf("heynemann@gmail.com;%s", code))
+			code, err := GetGoogleOAuthCode(oauthConfig)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
 
-	AuthenticateWithGoogle(recorder, request)
+			recorder := httptest.NewRecorder()
 
-	c.Assert(recorder.Code, gocheck.Equals, http.StatusOK)
+			request, err := http.NewRequest("GET", "/authenticate/google", nil)
+			Expect(err).Should(BeNil())
+			request.Header.Add("X-Auth-Data", fmt.Sprintf("heynemann@gmail.com;%s", code))
 
-	header, ok := recorder.HeaderMap["X-Auth-Token"]
-	c.Assert(ok, gocheck.Equals, true)
-	c.Assert(header, gocheck.NotNil)
+			AuthenticateWithGoogle(recorder, request)
 
-	buf := new(bytes.Buffer)
-	buf.Write([]byte("my-security-key"))
-	key := buf.Bytes()
-	token, err := jwt.Parse(header[0], func(t *jwt.Token) ([]byte, error) { return key, nil })
+			Expect(recorder.Code).Should(Equal(200))
 
-	c.Assert(token, gocheck.NotNil)
+			header, ok := recorder.HeaderMap["X-Auth-Token"]
+			Expect(ok).Should(Equal(true))
+			Expect(header).ShouldNot(BeNil())
 
-	c.Assert(token.Valid, gocheck.Equals, true)
-	c.Assert(token.Claims["token"], gocheck.NotNil)
-	c.Assert(token.Claims["sub"], gocheck.Equals, "heynemann@gmail.com")
-	c.Assert(token.Claims["iss"], gocheck.Equals, "Google")
-	c.Assert(token.Claims["iat"], gocheck.NotNil)
-	c.Assert(token.Claims["exp"], gocheck.NotNil)
-}
+			buf := new(bytes.Buffer)
+			buf.Write([]byte("my-security-key"))
+			key := buf.Bytes()
+			token, err := jwt.Parse(header[0], func(t *jwt.Token) ([]byte, error) { return key, nil })
+
+			Expect(token).ShouldNot(BeNil())
+			Expect(token.Valid).Should(Equal(true))
+			Expect(token.Claims["token"]).ShouldNot(BeNil())
+			Expect(token.Claims["sub"]).Should(Equal("heynemann@gmail.com"))
+			Expect(token.Claims["iss"]).Should(Equal("Google"))
+			Expect(token.Claims["iat"]).ShouldNot(BeNil())
+			Expect(token.Claims["exp"]).ShouldNot(BeNil())
+		})
+
+	})
+
+})
