@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/globoi/featness/api"
+	"github.com/globoi/featness/api/models"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/pat"
 	"github.com/maraino/go-mock"
@@ -106,6 +106,6 @@ func (l *LoggerTest) Panicf(format string, v ...interface{}) {
 
 func TestMain(t *testing.T) {
 	RegisterFailHandler(Fail)
-	api.MongoStartup("featness", "localhost:3334", "featness", "", "")
+	models.MongoStartup("featness", "localhost:3334", "featness", "", "")
 	RunSpecs(t, "API Server Main Suite")
 }

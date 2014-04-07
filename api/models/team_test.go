@@ -1,4 +1,4 @@
-package api
+package models
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -36,29 +36,6 @@ var _ = Describe("Models", func() {
 			}
 			testUsers = append(testUsers, result)
 		}
-	})
-
-	Context(" - User model", func() {
-		Context("when the user is logging in for the first time", func() {
-			It("Should create a new user and return it", func() {
-				user, err := GetOrCreateUser("Bernardo Heynemann", "heynemann", "http://my.picture.url")
-				Expect(err).ShouldNot(HaveOccurred())
-				Expect(user).ShouldNot(BeNil())
-				Expect(user.Name).Should(Equal("Bernardo Heynemann"))
-				Expect(user.UserID).Should(Equal("heynemann"))
-				Expect(user.ImageURL).Should(Equal("http://my.picture.url"))
-			})
-		})
-
-		Context("when the user is logging again", func() {
-			It("Shouldn't change the existing ObjectId", func() {
-				user := testUsers[0]
-				newUser, err := GetOrCreateUser(user.Name, user.UserID, user.ImageURL)
-				Expect(err).ShouldNot(HaveOccurred())
-				Expect(newUser).ShouldNot(BeNil())
-				Expect(user.Id).Should(Equal(newUser.Id))
-			})
-		})
 	})
 
 	Context(" - Team model", func() {

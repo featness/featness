@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globoi/featness/api"
+	"github.com/globoi/featness/api/models"
 	"github.com/gorilla/pat"
 	"github.com/tsuru/config"
 	"log"
@@ -108,7 +109,7 @@ func connectToMongo() error {
 
 	fmt.Println("Connecting to mongo at ", hosts, " database: ", database, " user: ", username, " password: ", password)
 
-	return api.MongoStartup("featness", hosts, database, username, password)
+	return models.MongoStartup("featness", hosts, database, username, password)
 }
 
 func main() {

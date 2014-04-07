@@ -1,10 +1,10 @@
 package api
 
 import (
+	"github.com/globoi/featness/api/models"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/tsuru/config"
-	"labix.org/v2/mgo"
 	"launchpad.net/gocheck"
 	"log"
 	"testing"
@@ -27,31 +27,8 @@ func loadConfig(path string) {
 	}
 }
 
-type MongoSuite struct {
-	session *mgo.Session
-	conn    *mgo.Database
-}
-
-var _ = gocheck.Suite(&MongoSuite{})
-
-func (s *MongoSuite) SetUpSuite(c *gocheck.C) {
-	MongoStartup("featness-tests", "localhost:3333", "featnesstests", "", "")
-}
-
-func (s *MongoSuite) SetUpTest(c *gocheck.C) {
-	session, err := CopyMonotonicSession("featness-tests")
-	c.Assert(err, gocheck.IsNil)
-
-	s.session = session
-	s.conn = session.DB("featnesstests")
-}
-
-func (s *MongoSuite) TearDownTest(c *gocheck.C) {
-	s.session.Close()
-}
-
 func TestAPI(t *testing.T) {
 	RegisterFailHandler(Fail)
-	MongoStartup("featness", "localhost:3334", "featness", "", "")
+	models.MongoStartup("featness", "localhost:3334", "featness", "", "")
 	RunSpecs(t, "API Suite")
 }
