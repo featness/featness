@@ -6,6 +6,18 @@ import (
 	"net/http"
 )
 
+type ClientI interface {
+	Do(request *http.Request) (resp *http.Response, err error)
+}
+
+type Client struct {
+	http.Client
+}
+
+func (c *Client) Do(request *http.Request) (resp *http.Response, err error) {
+	return c.Do(request)
+}
+
 func readHttpBody(response *http.Response) string {
 
 	bodyBuffer := make([]byte, 1000)
@@ -31,7 +43,7 @@ func getUncachedResponse(uri string) (*http.Response, error) {
 
 	request.Header.Add("Cache-Control", "no-cache")
 
-	client := new(http.Client)
+	client := ClientI(new(Client))
 
 	return client.Do(request)
 }
