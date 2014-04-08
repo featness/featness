@@ -1,0 +1,44 @@
+.join-team-view {
+  h1 {
+    color: $blue;
+  }
+
+  .teams {
+    a {
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    > li {
+      @include box-sizing(border-box);
+      display: inline-block;
+      vertical-align: top;
+      width: 33.33%;
+      padding-right: 15px;
+    }
+
+    .panel {
+      min-height: 150px;
+      opacity: 0.99;
+
+      &:hover {
+        opacity: 0.85;
+      }
+    }
+
+    .panel-primary {
+      > .panel-heading {
+        font-weight: bold;
+
+        .project-count {
+          font-weight: normal;
+        }
+        .project-count-icon {
+          font-weight: normal;
+          margin-right: 10px;
+        }
+      }
+    }
+  }
+}

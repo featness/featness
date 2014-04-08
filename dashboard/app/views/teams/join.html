@@ -1,0 +1,18 @@
+<div class="join-team-view">
+
+    <h1>Join a new team</h1>
+
+    <noteams ng-hide="model.teams.length > 0"></noteams>
+
+    <ul class="teams">
+      <li ng-repeat="team in model.teams track by team.name">
+        <a href="javascript:">
+          <div class="panel panel-primary">
+            <div class="panel-heading">{{ team.name }}<div class="pull-right"><span class="glyphicon glyphicon-folder-open project-count-icon" title="number of registered projects"></span><span class="project-count" title="number of registered projects">{{ team.projects }}</span></div></div>
+            <div class="panel-body">{{ team.description }}</div>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+</div>

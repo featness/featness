@@ -8,7 +8,7 @@
 # license that can be found in the LICENSE file.
 
 define check-service
-    @if [ "$(shell nc -z localhost $2 1>&2 2> /dev/null; echo $$?)" != "0" ]; \
+    @if [ "$(nc -z localhost $2 1>&2 2> /dev/null; echo $$?)" != "0" ]; \
     then  \
         echo "\nFATAL: Expected to find $1 running on port $2\n"; \
         exit 1; \
@@ -110,28 +110,28 @@ _build_web_app:
 
 test: mongo_test _go_test
 
-run-api: check-test-services
+run-api:
 	@godep go run ./api-server/main.go --config ./api/etc/local.conf
 
 run-dashboard:
 	@cd dashboard && grunt serve
 
 kill_redis:
-	-redis-cli -p 4444 shutdown
+	@-redis-cli -p 4444 shutdown
 
 redis: kill_redis
-	redis-server ./redis.conf; sleep 1
-	redis-cli -p 4444 info > /dev/null
+	@redis-server ./redis.conf; sleep 1
+	@redis-cli -p 4444 info > /dev/null
 
 kill_mongo:
-	@ps aux | awk '(/mongod/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
+	@ps aux | egrep -i 'mongod.+3334' | egrep -v egrep | awk '{ print $2 }' | xargs kill -9
 
 mongo: kill_mongo
 	@rm -rf /tmp/featness/mongodata && mkdir -p /tmp/featness/mongodata
 	@mongod --dbpath /tmp/featness/mongodata --logpath /tmp/featness/mongolog --port 3333 --quiet &
 
 kill_mongo_test:
-	@ps aux | awk '(/mongod/ && $$0 !~ /awk/){ system("kill -9 "$$2) }'
+	@ps aux | egrep -i 'mongod.+3334' | egrep -v egrep | awk '{ print $2 }' | xargs kill -9
 
 mongo_test: kill_mongo_test
 	@rm -rf /tmp/featness/mongotestdata && mkdir -p /tmp/featness/mongotestdata
