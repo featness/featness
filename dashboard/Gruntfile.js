@@ -70,7 +70,7 @@ module.exports = function (grunt) {
         livereload: 35729,
         middleware: function(connect, options, middlewares) {
           var serveRoutes = function(req, res, next) {
-            if (req.url == '/login' || req.url == '/teams/join') {
+            if (req.url.indexOf('/images') < 0 && req.url.indexOf('/scripts') < 0) {
               fs.readFile('./app/index.html', function(error, content) {
                 if (error) {
                   res.writeHead(500);
