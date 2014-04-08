@@ -2,13 +2,13 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globoi/featness/api/models"
 	"labix.org/v2/mgo/bson"
 	"net/http"
 )
 
+// TODO: Change this to be GetUserTeams
 func GetAllTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 	sub := token.Claims["sub"].(string)
 	user := &models.User{}
@@ -26,6 +26,18 @@ func GetAllTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 	}
 
 	b, err := json.Marshal(teams)
-	fmt.Println(err, b, teams)
+	w.Write(b)
+}
+
+// TODO: Change this to be GetAllTeams
+func GetAllTeamsUnauthenticated(w http.ResponseWriter, r *http.Request) {
+	teams := &[]models.Team{}
+	err := models.Teams().Find(bson.M{}).All(teams)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	b, err := json.Marshal(teams)
 	w.Write(b)
 }
