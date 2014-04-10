@@ -7,14 +7,14 @@ import (
 )
 
 type ClientI interface {
-	Do(request *http.Request) (resp *http.Response, err error)
+	DoRequest(request *http.Request) (resp *http.Response, err error)
 }
 
 type Client struct {
 	http.Client
 }
 
-func (c *Client) Do(request *http.Request) (resp *http.Response, err error) {
+func (c *Client) DoRequest(request *http.Request) (resp *http.Response, err error) {
 	return c.Do(request)
 }
 
@@ -45,7 +45,7 @@ func getUncachedResponse(uri string) (*http.Response, error) {
 
 	client := ClientI(new(Client))
 
-	return client.Do(request)
+	return client.DoRequest(request)
 }
 
 func getMe(token string) (map[string]interface{}, error) {
