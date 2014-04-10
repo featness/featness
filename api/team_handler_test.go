@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/globoi/featness/api/models"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,22 +25,25 @@ var _ = Describe("Team Handler", func() {
 
 	Context("when no teams registered", func() {
 
-		It("should return user teams", func() {
+		It("should return user teams with an empty array", func() {
 		})
 
-		It("should return all teams", func() {
+		It("should return all teams with an empty array", func() {
 			recorder := httptest.NewRecorder()
 			request, err := http.NewRequest("GET", "/all-teams", nil)
 			Expect(err).ShouldNot(HaveOccurred())
 
-			GetAllTeamsUnauthenticated(recorder, request)
+			GetAllTeams(recorder, request)
 			Expect(recorder.Code).Should(Equal(http.StatusOK))
 
 			body, err := ioutil.ReadAll(recorder.Body)
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(string(body)).ShouldNot(BeNil())
 
-			obj, err := json.Marshal(body)
+			fmt.Println("body:", string(body))
+
+			var obj []interface{}
+			err = json.Unmarshal(body, &obj)
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(obj).To(HaveLen(0))
 		})

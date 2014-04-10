@@ -86,7 +86,26 @@ check-test-services:
 
 _go_test:
 	@go clean ./...
-	@godep go test ./... -v -race
+	@echo
+	@echo "===================================================================================================="
+	@echo "RUNNING API Tests..."
+	@echo "===================================================================================================="
+	@echo
+	@-godep go test ./api/... -v -race
+	@echo
+	@echo "===================================================================================================="
+	@echo
+	@echo
+	@echo "===================================================================================================="
+	@echo "RUNNING API-Server Tests..."
+	@echo "===================================================================================================="
+	@echo
+	@-godep go test ./api-server/... -v -race
+	@echo
+	@echo "===================================================================================================="
+	@echo
+	@echo
+
 
 build: _build_api _build_dashboard
 
@@ -124,14 +143,14 @@ redis: kill_redis
 	@redis-cli -p 4444 info > /dev/null
 
 kill_mongo:
-	@-ps aux | egrep -i 'mongod.+3334' | egrep -v egrep | awk '{ print $2 }' | xargs kill -9
+	@-ps aux | egrep -i 'mongod.+3334' | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
 
 mongo: kill_mongo
 	@rm -rf /tmp/featness/mongodata && mkdir -p /tmp/featness/mongodata
 	@mongod --dbpath /tmp/featness/mongodata --logpath /tmp/featness/mongolog --port 3333 --quiet &
 
 kill_mongo_test:
-	@-ps aux | egrep -i 'mongod.+3334' | egrep -v egrep | awk '{ print $2 }' | xargs kill -9
+	@-ps aux | egrep -i 'mongod.+3334' | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
 
 mongo_test: kill_mongo_test
 	@rm -rf /tmp/featness/mongotestdata && mkdir -p /tmp/featness/mongotestdata

@@ -8,8 +8,7 @@ import (
 	"net/http"
 )
 
-// TODO: Change this to be GetUserTeams
-func GetAllTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
+func GetUserTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 	sub := token.Claims["sub"].(string)
 	user := &models.User{}
 	err := models.Users().Find(bson.M{"userID": sub}).One(user)
@@ -29,8 +28,7 @@ func GetAllTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 	w.Write(b)
 }
 
-// TODO: Change this to be GetAllTeams
-func GetAllTeamsUnauthenticated(w http.ResponseWriter, r *http.Request) {
+func GetAllTeams(w http.ResponseWriter, r *http.Request) {
 	teams := &[]models.Team{}
 	err := models.Teams().Find(bson.M{}).All(teams)
 	if err != nil {
