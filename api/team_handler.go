@@ -11,9 +11,9 @@ import (
 func GetUserTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 	sub := token.Claims["sub"].(string)
 	user := &models.User{}
-	err := models.Users().Find(bson.M{"userID": sub}).One(user)
+	err := models.Users().Find(bson.M{"userid": sub}).One(user)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -25,6 +25,12 @@ func GetUserTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 	}
 
 	b, err := json.Marshal(teams)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.Write(b)
 }
 
@@ -37,5 +43,11 @@ func GetAllTeams(w http.ResponseWriter, r *http.Request) {
 	}
 
 	b, err := json.Marshal(teams)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.Write(b)
 }

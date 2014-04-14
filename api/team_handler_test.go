@@ -2,33 +2,132 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/globoi/featness/api/models"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"time"
 )
 
 var _ = Describe("Team Handler", func() {
 	var (
 		teams *mgo.Collection
+		users *mgo.Collection
+		user  *models.User
 	)
 
 	BeforeEach(func() {
 		teams = models.Teams()
 		teams.RemoveAll(bson.M{})
+
+		users = models.Users()
+		users.RemoveAll(bson.M{})
 	})
 
 	Context("when no teams registered", func() {
 
-		It("should return user teams with an empty array", func() {
+		Context("when obtaining user teams", func() {
+
+			It("should fail if user not found", func() {
+				recorder := httptest.NewRecorder()
+				request, err := http.NewRequest("GET", "/teams", nil)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				token := jwt.New(jwt.GetSigningMethod("HS256"))
+				token.Claims["sub"] = "invalid-user-id"
+				token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+				GetUserTeams(recorder, request, token)
+				Expect(recorder.Code).Should(Equal(http.StatusBadRequest))
+
+				body, err := ioutil.ReadAll(recorder.Body)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(string(body)).Should(BeEmpty())
+			})
+
+			It("should return user teams with an empty array", func() {
+				userID := "user-1"
+				user = &models.User{bson.NewObjectId(), "User 1", userID, time.Now(), "http://picture.com/1"}
+				users.Insert(user)
+
+				recorder := httptest.NewRecorder()
+				request, err := http.NewRequest("GET", "/teams", nil)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				token := jwt.New(jwt.GetSigningMethod("HS256"))
+				token.Claims["sub"] = userID
+				token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+				GetUserTeams(recorder, request, token)
+				Expect(recorder.Code).Should(Equal(http.StatusOK))
+
+				body, err := ioutil.ReadAll(recorder.Body)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(string(body)).ShouldNot(BeNil())
+
+				var obj []interface{}
+				err = json.Unmarshal(body, &obj)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(obj).To(HaveLen(0))
+			})
 		})
 
-		It("should return all teams with an empty array", func() {
+		Context("when obtaining all teams", func() {
+			It("should return all teams with an empty array", func() {
+				recorder := httptest.NewRecorder()
+				request, err := http.NewRequest("GET", "/all-teams", nil)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				GetAllTeams(recorder, request)
+				Expect(recorder.Code).Should(Equal(http.StatusOK))
+
+				body, err := ioutil.ReadAll(recorder.Body)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(string(body)).ShouldNot(BeNil())
+
+				var obj []interface{}
+				err = json.Unmarshal(body, &obj)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(obj).To(HaveLen(0))
+			})
+		})
+	})
+
+	Context("when teams registered", func() {
+		var (
+			allUsers []*models.User
+			allTeams []*models.Team
+		)
+
+		BeforeEach(func() {
+			allUsers = []*models.User{}
+			allTeams = []*models.Team{}
+
+			for i := 0; i < 10; i++ {
+				userID := "userID" + string(i)
+				users.Insert(
+					&models.User{bson.NewObjectId(), "User " + string(i), userID, time.Now(), "http://picture.com/" + string(i)},
+				)
+				result := models.User{}
+				err := users.Find(bson.M{"userid": userID}).One(&result)
+				if err != nil {
+					log.Panicf(err.Error())
+				}
+				allUsers = append(allUsers, &result)
+			}
+
+			team, _ := models.GetOrCreateTeam("team1", *allUsers[0])
+			team2, _ := models.GetOrCreateTeam("team2", *allUsers[1])
+			allTeams = append(allTeams, team, team2)
+		})
+
+		It("Should get all teams", func() {
 			recorder := httptest.NewRecorder()
 			request, err := http.NewRequest("GET", "/all-teams", nil)
 			Expect(err).ShouldNot(HaveOccurred())
@@ -40,16 +139,34 @@ var _ = Describe("Team Handler", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(string(body)).ShouldNot(BeNil())
 
-			fmt.Println("body:", string(body))
-
 			var obj []interface{}
 			err = json.Unmarshal(body, &obj)
 			Expect(err).ShouldNot(HaveOccurred())
-			Expect(obj).To(HaveLen(0))
+			Expect(obj).To(HaveLen(2))
 		})
-	})
 
-	Context("when teams registered", func() {
+		It("should return user teams when available", func() {
+			recorder := httptest.NewRecorder()
+			request, err := http.NewRequest("GET", "/teams", nil)
+			Expect(err).ShouldNot(HaveOccurred())
+
+			token := jwt.New(jwt.GetSigningMethod("HS256"))
+			token.Claims["sub"] = allUsers[0].UserID
+			token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+			GetUserTeams(recorder, request, token)
+			Expect(recorder.Code).Should(Equal(http.StatusOK))
+
+			body, err := ioutil.ReadAll(recorder.Body)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(string(body)).ShouldNot(BeNil())
+
+			var obj []models.Team
+			err = json.Unmarshal(body, &obj)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(obj).To(HaveLen(1))
+			Expect(obj[0].Name).To(Equal("team1"))
+		})
 
 	})
 
