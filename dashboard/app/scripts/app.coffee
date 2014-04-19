@@ -5,7 +5,8 @@ angular
     'ngCookies',
     'ngResource',
     'ngSanitize',
-    'ngRoute'
+    'ngRoute',
+    'ui.bootstrap'
   ])
   .config ($routeProvider, $locationProvider, $httpProvider) ->
     $locationProvider.html5Mode(true)
@@ -22,6 +23,9 @@ angular
         templateUrl: '/views/teams/join.html'
         controller: 'JoinTeamCtrl'
         isAuthenticated: true
+      .when '/teams/new',
+        templateUrl: '/views/teams/new.html'
+        controller: 'NewTeamCtrl'
       .otherwise
         redirectTo: '/'
 

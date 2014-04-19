@@ -1,0 +1,66 @@
+.new-team-view {
+    #team-name {
+        font-size: 48px;
+        line-height: inherit;
+        height: 100px;
+        padding: 15px 20px;
+    }
+
+    label {
+        font-size: 24px;
+        color: #666;
+    }
+
+    .team-name-feedback {
+        font-size: 32px;
+        top: 35px;
+        right: 20px;
+    }
+
+    .members {
+        margin: 60px 0 40px;
+    }
+
+    .added-members {
+        margin-top: 50px;
+        margin-bottom: 30px;
+    }
+
+    .add-member-match, .added-member {
+        img {
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        span {
+            font-size: 17px;
+            padding-top: 4px;
+            display: inline-block;
+            vertical-align: top;
+        }
+    }
+
+    .added-member {
+        margin-left: 20px;
+        margin-bottom: 10px;
+
+        .remove {
+            span {
+                cursor: pointer;
+                margin-top: 4px;
+                margin-left: 5px;
+                color: #a94442;
+            }
+        }
+
+        .team-owner {
+            margin-top: 4px;
+            margin-left: 5px;
+        }
+    }
+
+    .create-button {
+        display: block;
+        margin-top: 80px;
+        font-size: 32px;
+    }
+}

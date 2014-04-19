@@ -1,0 +1,51 @@
+<script type="text/ng-template" id="addMember.html">
+    <a class="add-member-match">
+        <img ng-src="{{match.model.picture}}" width="32">
+        <span bind-html-unsafe="match.model.name"></span>
+    </a>
+</script>
+
+<div class="new-team-view view">
+
+    <h1>create a new team</h1>
+
+    <form action="#" role="form">
+        <div class="form-group has-feedback" data-ng-class="model.nameAvailableClass">
+            <input type="text" class="form-control" id="team-name" name="team-name" placeholder="Enter team name" data-ng-model="model.teamName">
+            <span class="glyphicon glyphicon-remove form-control-feedback team-name-feedback" title="Team name is not available!" data-ng-show="model.nameAvailable === false"></span>
+            <span class="glyphicon glyphicon-ok form-control-feedback team-name-feedback" title="Team name is available." data-ng-show="model.nameAvailable === true"></span>
+            <p class="help-block" data-ng-show="model.nameAvailable === false">Team name is not available!</p>
+        </div>
+
+        <div class="form-group members">
+            <h3>find a member</h3>
+            <input type="text" 
+                   class="form-control"
+                   ng-model="model.selectedMember"
+                   typeahead="member for member in model.availableMembers | filter:{name:$viewValue} | limitTo:8"
+                   typeahead-on-select="model.addMember()"
+                   typeahead-template-url="addMember.html"
+                   typeahead-wait-ms="100">
+
+            <h3 class="added-members">team members</h3>
+            <ul>
+                <li class="current-user added-member">
+                    <img ng-src="{{model.user.picture}}" width="32">
+                    <span bind-html-unsafe="model.user.name"></span>
+                    <span class="glyphicon glyphicon-user team-owner" title="Team owner"></span>
+                </li>
+
+                <li ng-repeat="member in model.selectedMembers track by member.name" class="added-member">
+                    <img ng-src="{{member.picture}}" width="32">
+                    <span bind-html-unsafe="member.name"></span>
+                    <a class="remove" ng-click="model.removeMember(member)">
+                        <span class="glyphicon glyphicon-remove" title="Remove team member"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg create-button">create team</button>
+    </form>
+
+</div>

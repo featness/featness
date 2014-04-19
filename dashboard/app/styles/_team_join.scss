@@ -31,11 +31,16 @@
       > .panel-heading {
         font-weight: bold;
 
-        .project-count {
+        .project-count, .user-count {
           font-weight: normal;
         }
-        .project-count-icon {
+
+        .project-count-icon, .user-count-icon {
           font-weight: normal;
+          margin-right: 5px;
+        }
+
+        .user-count {
           margin-right: 10px;
         }
       }

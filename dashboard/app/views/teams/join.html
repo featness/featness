@@ -1,4 +1,4 @@
-<div class="join-team-view">
+<div class="join-team-view view">
 
     <h1>Join a new team</h1>
 
@@ -8,7 +8,16 @@
       <li ng-repeat="team in model.teams track by team.name">
         <a href="javascript:">
           <div class="panel panel-primary">
-            <div class="panel-heading">{{ team.name }}<div class="pull-right"><span class="glyphicon glyphicon-folder-open project-count-icon" title="number of registered projects"></span><span class="project-count" title="number of registered projects">{{ team.projects }}</span></div></div>
+            <div class="panel-heading">
+                {{ team.name }}
+                <div class="pull-right">
+                    <span class="glyphicon glyphicon-user user-count-icon" title="number of members"></span>
+                    <span class="user-count" title="number of members">{{ team.members }}</span>
+
+                    <span class="glyphicon glyphicon-folder-open project-count-icon" title="number of registered projects"></span>
+                    <span class="project-count" title="number of registered projects">{{ team.projects }}</span>
+                </div>
+            </div>
             <div class="panel-body">{{ team.description }}</div>
           </div>
         </a>
