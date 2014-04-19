@@ -27,7 +27,7 @@ var _ = Describe("Models", func() {
 		for i := 0; i < 10; i++ {
 			userID := "userID" + string(i)
 			users.Insert(
-				&User{bson.NewObjectId(), "User " + string(i), userID, time.Now(), "http://picture.com/" + string(i)},
+				&User{bson.NewObjectId(), "facebook", userID, "User " + string(i), time.Now(), "http://picture.com/" + string(i)},
 			)
 			result := User{}
 			err := users.Find(bson.M{"userid": userID}).One(&result)
@@ -41,7 +41,7 @@ var _ = Describe("Models", func() {
 	Context(" - User model", func() {
 		Context("when the user is logging in for the first time", func() {
 			It("Should create a new user and return it", func() {
-				user, err := GetOrCreateUser("Bernardo Heynemann", "heynemann", "http://my.picture.url")
+				user, err := GetOrCreateUser("facebook", "heynemann", "Bernardo Heynemann", "http://my.picture.url")
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(user).ShouldNot(BeNil())
 				Expect(user.Name).Should(Equal("Bernardo Heynemann"))
@@ -53,7 +53,7 @@ var _ = Describe("Models", func() {
 		Context("when the user is logging again", func() {
 			It("Shouldn't change the existing ObjectId", func() {
 				user := testUsers[0]
-				newUser, err := GetOrCreateUser(user.Name, user.UserID, user.ImageURL)
+				newUser, err := GetOrCreateUser(user.Provider, user.UserID, user.Name, user.ImageURL)
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(newUser).ShouldNot(BeNil())
 				Expect(user.Id).Should(Equal(newUser.Id))

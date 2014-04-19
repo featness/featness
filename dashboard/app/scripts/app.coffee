@@ -26,6 +26,7 @@ angular
       .when '/teams/new',
         templateUrl: '/views/teams/new.html'
         controller: 'NewTeamCtrl'
+        isAuthenticated: true
       .otherwise
         redirectTo: '/'
 
@@ -49,7 +50,7 @@ angular
       token = storage.getItem("featness-token")
 
       if token?
-        config.headers = {'X-Auth-Data': token}
+        config.headers = {'X-Auth-Token': token}
 
       return config
   )

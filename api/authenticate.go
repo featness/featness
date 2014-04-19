@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/globoi/featness/api/models"
 	"github.com/tsuru/config"
 	"log"
 	"net/http"
@@ -26,17 +27,19 @@ func StrConfigOrEnv(key string) string {
 
 type AuthenticationProvider func(token string, account string) (string, error)
 
-func Authenticate(provider string, token string, email string, authenticator AuthenticationProvider) (string, error) {
-	token, err := authenticator(token, email)
+func Authenticate(provider string, token string, userAccount string, name string, imageUrl string, authenticator AuthenticationProvider) (string, error) {
+	token, err := authenticator(token, userAccount)
 
 	if err != nil {
 		return "", fmt.Errorf("error authenticating with provider %s: %v", provider, err)
 	}
 
+	user, err := models.GetOrCreateUser(provider, token, userAccount, name, imageUrl)
+
 	jwtToken := jwt.New(jwt.GetSigningMethod("HS256"))
-	jwtToken.Claims["token"] = token
-	jwtToken.Claims["sub"] = email
-	jwtToken.Claims["iss"] = provider
+	jwtToken.Claims["token"] = user.AccessToken
+	jwtToken.Claims["sub"] = user.UserId
+	jwtToken.Claims["iss"] = user.Provider
 	jwtToken.Claims["iat"] = time.Now().Unix()
 	jwtToken.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
@@ -62,9 +65,9 @@ func AuthenticationRoute(w http.ResponseWriter, r *http.Request, providerName st
 	}
 
 	parts := strings.Split(authorizationHeader, ";")
-	userAccount, token := parts[0], parts[1]
+	userAccount, name, imageUrl, token := parts[0], parts[1], parts[2], parts[3]
 
-	token, err := Authenticate(providerName, token, userAccount, authenticator)
+	token, err := Authenticate(providerName, token, userAccount, name, imageUrl, authenticator)
 
 	if err != nil {
 		log.Println(err)

@@ -81,7 +81,7 @@ func FacebookAuthenticationProvider(token string, account string) (string, error
 	}
 
 	if facebookData["username"] != account {
-		return "", fmt.Errorf("access token is for a different account.")
+		return "", fmt.Errorf("access token (%s) is for a different account (%s).", account, facebookData["username"])
 	}
 
 	return token, nil

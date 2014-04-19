@@ -1,7 +1,10 @@
 'use strict'
 
+errorClass = 'has-error'
+successClass = 'has-success'
+
 class NewTeamCtrl
-    constructor: (@scope) ->
+    constructor: (@scope, @http) ->
         @selectedMembers = []
         @nameAvailable = null
         @nameAvailableClass = ''
@@ -26,21 +29,19 @@ class NewTeamCtrl
             @nameAvailableClass = ''
             return
 
-        existingTeams = [
-            'timehome',
-            'appdev'
-        ]
-
-        name = name.toLowerCase()
-
-        for team in existingTeams
-            if team == name
+        @http({method: 'GET', url: "http://local.featness.com:8000/teams/available?name=#{ name }"}).
+            success((data, status, headers, config) =>
+                if data? and data
+                    @nameAvailable = true
+                    @nameAvailableClass = successClass
+                else
+                    @nameAvailable = false
+                    @nameAvailableClass = errorClass
+            ).
+            error((data, status, headers, config) =>
                 @nameAvailable = false
-                @nameAvailableClass = 'has-error'
-                return
-
-        @nameAvailable = true
-        @nameAvailableClass = 'has-success'
+                @nameAvailableClass = errorClass
+            )
 
     addMember: () =>
         @selectedMembers.push(@selectedMember)
@@ -50,9 +51,9 @@ class NewTeamCtrl
         index = @selectedMembers.indexOf(member)
         return if index == -1
 
-        @selectedMembers.splice(index, 1);
+        @selectedMembers.splice(index, 1)
 
 
 angular.module('dashboardApp')
-    .controller 'NewTeamCtrl', ($scope) ->
-        $scope.model = new NewTeamCtrl($scope)
+    .controller 'NewTeamCtrl', ($scope, $http) ->
+        $scope.model = new NewTeamCtrl($scope, $http)

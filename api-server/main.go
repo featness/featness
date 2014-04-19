@@ -68,7 +68,7 @@ func AuthRequiredFunc(handler SecureFunc) http.HandlerFunc {
 		token, err := jwt.Parse(header[0], func(t *jwt.Token) ([]byte, error) { return []byte(securityKey), nil })
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			log.Println("X-Auth-Token is not a valid token.")
+			log.Println(fmt.Sprintf("X-Auth-Token is not a valid token (%v).", err))
 			return
 		}
 
@@ -88,6 +88,7 @@ func getRouter() *pat.Router {
 	router.Post("/authenticate/google", AllowCrossDomainFunc(api.AuthenticateWithGoogle))
 	router.Post("/authenticate/facebook", AllowCrossDomainFunc(api.AuthenticateWithFacebook))
 	router.Get("/teams", AllowCrossDomainFunc(AuthRequiredFunc(api.GetUserTeams)))
+	router.Get("/teams/available", AllowCrossDomainFunc(AuthRequiredFunc(api.IsTeamNameAvailable)))
 	router.Get("/all-teams", AllowCrossDomainFunc(api.GetAllTeams))
 	router.Add("OPTIONS", "/", http.HandlerFunc(crossDomain))
 

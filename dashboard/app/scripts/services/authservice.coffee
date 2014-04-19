@@ -68,7 +68,8 @@ class AuthService
       is possible retrieve his personal info
       ###
       FB.api('/me', (meResponse) =>
-        @getAuthenticationHeader("facebook", meResponse.username, response.authResponse.accessToken, @facebookCallback)
+        console.log(response, meResponse)
+        @getAuthenticationHeader("facebook", response.authResponse.accessToken, meResponse.username, meResponse.name, "http://graph.facebook.com/#{ meResponse.username }/picture", @facebookCallback)
       )
 
     else
@@ -81,12 +82,12 @@ class AuthService
   authenticateWithFacebook: (callback) ->
     FB.login()
 
-  getAuthenticationHeader: (provider, userAccount, accessToken, callback) ->
+  getAuthenticationHeader: (provider, accessToken, userAccount, name, imageUrl, callback) ->
     @http(
       url: "http://local.featness.com:8000/authenticate/#{ provider }",
       method: "POST",
       headers: {
-        'X-Auth-Data': "#{userAccount};#{accessToken}"
+        'X-Auth-Data': "#{userAccount};#{name};#{imageUrl};#{accessToken}"
       }
       data: {}
     ).success((data, status, headers, config) =>

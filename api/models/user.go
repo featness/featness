@@ -7,11 +7,13 @@ import (
 )
 
 type User struct {
-	Id       bson.ObjectId `json:"id"        bson:"_id,omitempty"`
-	Name     string        `json:"name"`
-	UserID   string        `json:"userid"`
-	JoinedAt time.Time     `json:"joinedat"`
-	ImageURL string        `json:"imageurl"`
+	Id          bson.ObjectId `json:"id"        bson:"_id,omitempty"`
+	Provider    string        `json:"provider"`
+	AccessToken string        `json:"accessToken"`
+	Name        string        `json:"name"`
+	UserId      string        `json:"userid"`
+	JoinedAt    time.Time     `json:"joinedat"`
+	ImageUrl    string        `json:"imageurl"`
 }
 
 func Users() *mgo.Collection {
@@ -19,12 +21,12 @@ func Users() *mgo.Collection {
 	return conn.C("users")
 }
 
-func GetOrCreateUser(name string, userID string, imageURL string) (*User, error) {
+func GetOrCreateUser(provider string, accessToken string, userID string, name string, imageURL string) (*User, error) {
 	usersColl := Users()
 
 	_, err := usersColl.Upsert(
 		bson.M{"userid": userID},
-		&User{bson.NewObjectId(), name, userID, time.Now(), imageURL},
+		&User{bson.NewObjectId(), provider, accessToken, name, userID, time.Now(), imageURL},
 	)
 
 	user := &User{}

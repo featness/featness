@@ -97,6 +97,43 @@ var _ = Describe("Team Handler", func() {
 				Expect(obj).To(HaveLen(0))
 			})
 		})
+
+		Context("when verifying if a name is available", func() {
+			It("should return true for any names", func() {
+				recorder := httptest.NewRecorder()
+				request, err := http.NewRequest("GET", "/teams/available?name=something", nil)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				token := jwt.New(jwt.GetSigningMethod("HS256"))
+				token.Claims["sub"] = "user-1"
+				token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+				IsTeamNameAvailable(recorder, request, token)
+				Expect(recorder.Code).Should(Equal(http.StatusOK))
+
+				body, err := ioutil.ReadAll(recorder.Body)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(string(body)).ShouldNot(BeNil())
+
+				var obj interface{}
+				err = json.Unmarshal(body, &obj)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(obj.(bool)).To(BeTrue())
+			})
+
+			It("Should fail when no name provided", func() {
+				recorder := httptest.NewRecorder()
+				request, err := http.NewRequest("GET", "/teams/available", nil)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				token := jwt.New(jwt.GetSigningMethod("HS256"))
+				token.Claims["sub"] = "user-1"
+				token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+				IsTeamNameAvailable(recorder, request, token)
+				Expect(recorder.Code).Should(Equal(http.StatusBadRequest))
+			})
+		})
 	})
 
 	Context("when teams registered", func() {
@@ -166,6 +203,53 @@ var _ = Describe("Team Handler", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(obj).To(HaveLen(1))
 			Expect(obj[0].Name).To(Equal("team1"))
+		})
+
+		Context("when verifying if a name is available", func() {
+			It("should return false for taken names", func() {
+				recorder := httptest.NewRecorder()
+				request, err := http.NewRequest("GET", "/teams/available?name=team1", nil)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				token := jwt.New(jwt.GetSigningMethod("HS256"))
+				token.Claims["sub"] = "user-1"
+				token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+				IsTeamNameAvailable(recorder, request, token)
+				Expect(recorder.Code).Should(Equal(http.StatusOK))
+
+				body, err := ioutil.ReadAll(recorder.Body)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(string(body)).ShouldNot(BeNil())
+
+				var obj interface{}
+				err = json.Unmarshal(body, &obj)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(obj.(bool)).To(BeFalse())
+			})
+
+			It("should return true for available names", func() {
+				recorder := httptest.NewRecorder()
+				request, err := http.NewRequest("GET", "/teams/available?name=team3", nil)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				token := jwt.New(jwt.GetSigningMethod("HS256"))
+				token.Claims["sub"] = "user-1"
+				token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+				IsTeamNameAvailable(recorder, request, token)
+				Expect(recorder.Code).Should(Equal(http.StatusOK))
+
+				body, err := ioutil.ReadAll(recorder.Body)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(string(body)).ShouldNot(BeNil())
+
+				var obj interface{}
+				err = json.Unmarshal(body, &obj)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(obj.(bool)).To(BeTrue())
+			})
+
 		})
 
 	})
