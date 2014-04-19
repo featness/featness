@@ -50,7 +50,7 @@ angular
       token = storage.getItem("featness-token")
 
       if token?
-        config.headers = {'X-Auth-Token': token}
+        config.headers['X-Auth-Token'] = token
 
       return config
   )

@@ -10,7 +10,7 @@ class LoginCtrl
   authenticateWithFacebook: ->
     @auth.authenticateWithFacebook(@handleAuthenticated)
 
-  handleAuthenticated: (email, token) =>
+  handleAuthenticated: (email, name, token) =>
     if email? and token?
       @location.path('/')
     else

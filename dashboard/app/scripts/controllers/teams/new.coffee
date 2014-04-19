@@ -4,7 +4,7 @@ errorClass = 'has-error'
 successClass = 'has-success'
 
 class NewTeamCtrl
-    constructor: (@scope, @http) ->
+    constructor: (@scope, @http, @auth) ->
         @selectedMembers = []
         @nameAvailable = null
         @nameAvailableClass = ''
@@ -15,6 +15,8 @@ class NewTeamCtrl
         @scope.$watch('model.teamName', (newValue, oldValue) =>
             @validateTeamName(newValue)
         )
+
+        @teamOwner = @auth.getUser()
 
         @availableMembers = [
             {name: 'guilhermef', picture: 'http://graph.facebook.com/guilherme.souza/picture'},
@@ -44,8 +46,12 @@ class NewTeamCtrl
             )
 
     addMember: () =>
-        @selectedMembers.push(@selectedMember)
+        member = @selectedMember
+        memberAlreadyAdded = @selectedMembers.indexOf(member) != -1
         @selectedMember = null
+        return if memberAlreadyAdded
+
+        @selectedMembers.push(member)
 
     removeMember: (member) =>
         index = @selectedMembers.indexOf(member)
@@ -55,5 +61,5 @@ class NewTeamCtrl
 
 
 angular.module('dashboardApp')
-    .controller 'NewTeamCtrl', ($scope, $http) ->
-        $scope.model = new NewTeamCtrl($scope, $http)
+    .controller 'NewTeamCtrl', ($scope, $http, AuthService) ->
+        $scope.model = new NewTeamCtrl($scope, $http, AuthService)

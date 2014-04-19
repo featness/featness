@@ -2,7 +2,7 @@
 
 class AuthService
   constructor: (@http, @window) ->
-    @storage = window.sessionStorage
+    @storage = @window.sessionStorage
 
   isAuthenticated: ->
     return @getToken()?
@@ -10,8 +10,15 @@ class AuthService
   getToken: ->
     return @storage.getItem("featness-token")
 
-  getAccount: ->
-    return @storage.getItem("featness-account")
+  getUser: ->
+    if not @storage.getItem("featness-account")?
+      return null
+
+    return {
+      account: @storage.getItem("featness-account")
+      name: @storage.getItem("featness-account-name")
+      picture: @storage.getItem("featness-account-image")
+    }
 
   authenticateWithGoogle: (callback) ->
     gapi.auth.signIn(
@@ -68,7 +75,6 @@ class AuthService
       is possible retrieve his personal info
       ###
       FB.api('/me', (meResponse) =>
-        console.log(response, meResponse)
         @getAuthenticationHeader("facebook", response.authResponse.accessToken, meResponse.username, meResponse.name, "http://graph.facebook.com/#{ meResponse.username }/picture", @facebookCallback)
       )
 
@@ -95,11 +101,13 @@ class AuthService
       if token?
         @storage.setItem("featness-token", token)
         @storage.setItem("featness-account", userAccount)
-        callback(userAccount, token)
+        @storage.setItem("featness-account-name", name)
+        @storage.setItem("featness-account-image", imageUrl)
+        callback(userAccount, name, token)
       else
-        callback(null, null)
+        callback(null, null, null)
     ).error((data, status, headers, config) =>
-      callback(null, null)
+      callback(null, null, null)
     )
 
 
