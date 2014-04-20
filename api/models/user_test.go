@@ -76,7 +76,7 @@ var _ = Describe("Models", func() {
 
 		Context("when autocompleting user by name", func() {
 
-			FIt("should return an empty array if not users found", func() {
+			It("should return an empty array if not users found", func() {
 				users, err := FindUsersWithIdLike("invalid id")
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(users).Should(BeEmpty())

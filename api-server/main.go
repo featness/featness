@@ -89,6 +89,7 @@ func getRouter() *pat.Router {
 	router.Post("/authenticate/facebook", AllowCrossDomainFunc(api.AuthenticateWithFacebook))
 	router.Get("/teams", AllowCrossDomainFunc(AuthRequiredFunc(api.GetUserTeams)))
 	router.Get("/teams/available", AllowCrossDomainFunc(AuthRequiredFunc(api.IsTeamNameAvailable)))
+	router.Get("/users/find", AllowCrossDomainFunc(api.FindUsersWithIdLike))
 	router.Get("/all-teams", AllowCrossDomainFunc(api.GetAllTeams))
 	router.Add("OPTIONS", "/", http.HandlerFunc(crossDomain))
 

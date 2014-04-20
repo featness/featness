@@ -24,7 +24,7 @@ var _ = Describe("API facebook authenticate Module", func() {
 
 	Context("when FacebookAuthenticationProvider is called", func() {
 
-		It("should have generate token", func() {
+		PIt("should have generate token", func() {
 			c := &MockClient{}
 			c.When("DoRequest", mock.Any).Return(&http.Response{}, nil).Times(1)
 			recorder := httptest.NewRecorder()

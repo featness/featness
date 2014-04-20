@@ -1,10 +1,8 @@
 package models
 
 import (
-	"fmt"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
-	"regexp"
 	"time"
 )
 
@@ -40,10 +38,7 @@ func GetOrCreateUser(provider string, accessToken string, userID string, name st
 	defer conn.Close()
 
 	user := &User{}
-	err = usersColl.Find(bson.M{"userid": userID}).One(user)
-	if err != nil {
-		return nil, err
-	}
+	_ = usersColl.Find(bson.M{"userid": userID}).One(user)
 
 	if user == nil {
 		user = &User{bson.NewObjectId(), provider, accessToken, name, userID, time.Now(), imageURL}
@@ -64,17 +59,12 @@ func FindUsersWithIdLike(name string) (*[]User, error) {
 	}
 	defer conn.Close()
 
-	userId, err := regexp.Compile(fmt.Sprintf("/%s/", name))
-	if err != nil {
-		return nil, err
-	}
-
-	users := &[]User{}
-	err = usersColl.Find(bson.M{"userid": userId}).One(&users)
+	users := []User{}
+	err = usersColl.Find(bson.M{"userid": bson.M{"$regex": bson.RegEx{name, ""}}}).All(&users)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return users, nil
+	return &users, nil
 }

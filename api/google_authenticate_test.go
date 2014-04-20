@@ -27,7 +27,7 @@ var _ = Describe("API google authenticate Module", func() {
 
 	Context("when GoogleAuthenticationProvider is called", func() {
 
-		It("should have generate token", func() {
+		PIt("should have generate token", func() {
 			loadConfig("../testdata/etc/featness-api1.conf")
 			clientId := os.Getenv("GOOGLE_CLIENT_ID")
 			if clientId == "" {

@@ -85,7 +85,6 @@ func IsTeamNameAvailable(w http.ResponseWriter, r *http.Request, token *jwt.Toke
 	defer conn.Close()
 
 	name := r.FormValue("name")
-	fmt.Println("Name found:", name)
 	if name == "" {
 		log.Println("Invalid team name when finding if team name available.")
 		w.WriteHeader(http.StatusBadRequest)
