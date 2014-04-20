@@ -11,23 +11,33 @@ import (
 
 var _ = Describe("Models", func() {
 	var (
+		conn      *mgo.Session
 		teams     *mgo.Collection
 		users     *mgo.Collection
 		testUsers []User
 	)
 
 	BeforeEach(func() {
+		var (
+			err error
+		)
+
 		testUsers = []User{}
-		teams = Teams()
+
+		conn, teams, err = Teams()
+		Expect(err).ShouldNot(HaveOccurred())
+
 		teams.RemoveAll(bson.M{})
 
-		users = Users()
+		conn, users, err = UsersWithConn(conn)
+		Expect(err).ShouldNot(HaveOccurred())
+
 		users.RemoveAll(bson.M{})
 
 		for i := 0; i < 10; i++ {
 			userID := "userID" + string(i)
 			users.Insert(
-				&User{bson.NewObjectId(), "User " + string(i), userID, time.Now(), "http://picture.com/" + string(i)},
+				&User{bson.NewObjectId(), "facebook", "token", "User " + string(i), userID, time.Now(), "http://picture.com/" + string(i)},
 			)
 			result := User{}
 			err := users.Find(bson.M{"userid": userID}).One(&result)
@@ -36,6 +46,11 @@ var _ = Describe("Models", func() {
 			}
 			testUsers = append(testUsers, result)
 		}
+	})
+
+	AfterEach(func() {
+		conn.Close()
+		conn = nil
 	})
 
 	Context(" - Team model", func() {

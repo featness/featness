@@ -36,6 +36,10 @@ func Authenticate(provider string, token string, userAccount string, name string
 
 	user, err := models.GetOrCreateUser(provider, token, userAccount, name, imageUrl)
 
+	if err != nil {
+		return "", fmt.Errorf("Could not get or create user with account %s and token %s (%v)", userAccount, token, err)
+	}
+
 	jwtToken := jwt.New(jwt.GetSigningMethod("HS256"))
 	jwtToken.Claims["token"] = user.AccessToken
 	jwtToken.Claims["sub"] = user.UserId

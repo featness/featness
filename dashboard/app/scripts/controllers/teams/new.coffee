@@ -18,7 +18,8 @@ class NewTeamCtrl
 
         @teamOwner = @auth.getUser()
 
-        @availableMembers = [
+    getUsersThatMatch: (name) ->
+        return [
             {name: 'guilhermef', picture: 'http://graph.facebook.com/guilherme.souza/picture'},
             {name: 'rfloriano', picture: 'http://graph.facebook.com/rafael.floriano/picture'},
             {name: 'scorphus', picture: 'http://graph.facebook.com/pablo.aguiar/picture'},

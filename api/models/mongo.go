@@ -180,28 +180,28 @@ func CloseSession(sessionId string, mongoSession *mgo.Session) {
 	mongoSession.Close()
 }
 
-func Conn() (*mgo.Database, error) {
+func Conn() (*mgo.Session, *mgo.Database, error) {
 	return Db("featness")
 }
 
-func Db(name string) (*mgo.Database, error) {
+func Db(name string) (*mgo.Session, *mgo.Database, error) {
 	session, err := CopyMonotonicSession("featness")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return session.DB(name), nil
+	return session, session.DB(name), nil
 }
 
 func Close(mongoSession *mgo.Session) {
 	CloseSession("featness", mongoSession)
 }
 
-func Coll(name string) (*mgo.Collection, error) {
-	conn, err := Conn()
+func Coll(name string) (*mgo.Session, *mgo.Collection, error) {
+	conn, db, err := Conn()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	coll := conn.C(name)
-	return coll, nil
+	coll := db.C(name)
+	return conn, coll, nil
 }

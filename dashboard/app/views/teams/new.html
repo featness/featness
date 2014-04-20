@@ -22,7 +22,7 @@
             <input type="text" 
                    class="form-control"
                    ng-model="model.selectedMember"
-                   typeahead="member for member in model.availableMembers | filter:{name:$viewValue} | limitTo:8"
+                   typeahead="member for member in model.getUsersThatMatch($viewValue) | filter:{name:$viewValue} | limitTo:8"
                    typeahead-on-select="model.addMember()"
                    typeahead-template-url="addMember.html"
                    typeahead-wait-ms="100">

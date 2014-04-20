@@ -11,9 +11,17 @@ import (
 )
 
 func GetUserTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
+	conn, usersColl, err := models.Users()
+	if err != nil {
+		log.Println(fmt.Sprintf("Error connecting to the database (%v).", err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Close()
+
 	sub := token.Claims["sub"].(string)
 	user := &models.User{}
-	err := models.Users().Find(bson.M{"userid": sub}).One(user)
+	err = usersColl.Find(bson.M{"userid": sub}).One(user)
 	if err != nil {
 		log.Println(fmt.Sprintf("Could not find user with userId %s (%v).", sub, err))
 		w.WriteHeader(http.StatusBadRequest)
@@ -40,8 +48,16 @@ func GetUserTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 }
 
 func GetAllTeams(w http.ResponseWriter, r *http.Request) {
+	conn, teamsColl, err := models.Teams()
+	if err != nil {
+		log.Println(fmt.Sprintf("Error connecting to the database (%v).", err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Close()
+
 	teams := &[]models.Team{}
-	err := models.Teams().Find(bson.M{}).All(teams)
+	err = teamsColl.Find(bson.M{}).All(teams)
 	if err != nil {
 		log.Println(fmt.Sprintf("Error retrieving all teams (%v).", err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -60,6 +76,14 @@ func GetAllTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func IsTeamNameAvailable(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
+	conn, teamsColl, err := models.Teams()
+	if err != nil {
+		log.Println(fmt.Sprintf("Error connecting to the database (%v).", err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Close()
+
 	name := r.FormValue("name")
 	fmt.Println("Name found:", name)
 	if name == "" {
@@ -69,7 +93,7 @@ func IsTeamNameAvailable(w http.ResponseWriter, r *http.Request, token *jwt.Toke
 	}
 
 	teams := &[]models.Team{}
-	err := models.Teams().Find(bson.M{"name": name}).All(teams)
+	err = teamsColl.Find(bson.M{"name": name}).All(teams)
 	if err != nil {
 		log.Println(fmt.Sprintf("Error finding all teams with name that matches '%s' (%v).", name, err))
 		w.WriteHeader(http.StatusInternalServerError)

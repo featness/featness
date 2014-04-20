@@ -20,14 +20,26 @@ var _ = Describe("Team Handler", func() {
 		teams *mgo.Collection
 		users *mgo.Collection
 		user  *models.User
+		conn  *mgo.Session
 	)
 
 	BeforeEach(func() {
-		teams = models.Teams()
+		var (
+			err error
+		)
+
+		conn, teams, err = models.Teams()
+		Expect(err).ShouldNot(HaveOccurred())
 		teams.RemoveAll(bson.M{})
 
-		users = models.Users()
+		conn, users, err = models.UsersWithConn(conn)
+		Expect(err).ShouldNot(HaveOccurred())
 		users.RemoveAll(bson.M{})
+	})
+
+	AfterEach(func() {
+		conn.Close()
+		conn = nil
 	})
 
 	Context("when no teams registered", func() {
@@ -53,7 +65,7 @@ var _ = Describe("Team Handler", func() {
 
 			It("should return user teams with an empty array", func() {
 				userID := "user-1"
-				user = &models.User{bson.NewObjectId(), "User 1", userID, time.Now(), "http://picture.com/1"}
+				user = &models.User{bson.NewObjectId(), "facebook", "token", "User 1", userID, time.Now(), "http://picture.com/1"}
 				users.Insert(user)
 
 				recorder := httptest.NewRecorder()
@@ -149,7 +161,7 @@ var _ = Describe("Team Handler", func() {
 			for i := 0; i < 10; i++ {
 				userID := "userID" + string(i)
 				users.Insert(
-					&models.User{bson.NewObjectId(), "User " + string(i), userID, time.Now(), "http://picture.com/" + string(i)},
+					&models.User{bson.NewObjectId(), "facebook", "token", "User " + string(i), userID, time.Now(), "http://picture.com/" + string(i)},
 				)
 				result := models.User{}
 				err := users.Find(bson.M{"userid": userID}).One(&result)
@@ -188,7 +200,7 @@ var _ = Describe("Team Handler", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 
 			token := jwt.New(jwt.GetSigningMethod("HS256"))
-			token.Claims["sub"] = allUsers[0].UserID
+			token.Claims["sub"] = allUsers[0].UserId
 			token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 			GetUserTeams(recorder, request, token)
@@ -249,9 +261,6 @@ var _ = Describe("Team Handler", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(obj.(bool)).To(BeTrue())
 			})
-
 		})
-
 	})
-
 })

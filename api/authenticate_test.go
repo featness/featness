@@ -50,7 +50,7 @@ var _ = Describe("API authenticate Module", func() {
 
 		It("should have to generate token", func() {
 			config.Set("security_key", "my-secret")
-			auth, _ := Authenticate("test-provider", "my-token", "foo@bar.baz", HelperAuth)
+			auth, _ := Authenticate("test-provider", "my-token", "foo@bar.baz", "foo bar", "image url", HelperAuth)
 			config.Unset("security_key")
 
 			var securityKey string
@@ -64,14 +64,14 @@ var _ = Describe("API authenticate Module", func() {
 		})
 
 		It("should fail when authenticator fail", func() {
-			auth, err := Authenticate("test-provider", "my-token", "foo@bar.baz", func(token string, account string) (string, error) { return "", fmt.Errorf("Any error") })
+			auth, err := Authenticate("test-provider", "my-token", "foo@bar.baz", "foo bar", "image url", func(token string, account string) (string, error) { return "", fmt.Errorf("Any error") })
 
 			Expect(auth).Should(Equal(""))
 			Expect(err).Should(MatchError("error authenticating with provider test-provider: Any error"))
 		})
 
 		It("should fail when security_key does not in config", func() {
-			auth, err := Authenticate("test-provider", "my-token", "foo@bar.baz", HelperAuth)
+			auth, err := Authenticate("test-provider", "my-token", "foo@bar.baz", "foo bar", "image url", HelperAuth)
 
 			Expect(auth).Should(Equal(""))
 			Expect(err).Should(MatchError("security key could not be found in configuration file."))
@@ -79,7 +79,7 @@ var _ = Describe("API authenticate Module", func() {
 
 		PIt("should fail when jwt.SignedString throw error", func() {
 			// hard to mock to pass
-			auth, err := Authenticate("test-provider", "my-token", "foo@bar.baz", HelperAuth)
+			auth, err := Authenticate("test-provider", "my-token", "foo@bar.baz", "foo bar", "image url", HelperAuth)
 
 			Expect(auth).Should(Equal(""))
 			Expect(err).Should(MatchError("security key could not be found in configuration file."))

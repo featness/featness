@@ -26,11 +26,11 @@ var _ = Describe("API facebook authenticate Module", func() {
 
 		It("should have generate token", func() {
 			c := &MockClient{}
-			c.When("Do", mock.Any).Return(&http.Response{}, nil).Times(1)
+			c.When("DoRequest", mock.Any).Return(&http.Response{}, nil).Times(1)
 			recorder := httptest.NewRecorder()
 			request, err := http.NewRequest("GET", "/authenticate/facebook", nil)
 			Expect(err).Should(BeNil())
-			request.Header.Add("X-Auth-Data", fmt.Sprintf("heynemann@gmail.com;my-code"))
+			request.Header.Add("X-Auth-Data", fmt.Sprintf("heynemann@gmail.com;Bernardo Heynemann;image-url;my-code"))
 
 			AuthenticateWithFacebook(recorder, request)
 
