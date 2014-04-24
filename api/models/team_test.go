@@ -56,8 +56,8 @@ var _ = Describe("Models", func() {
 	Context(" - Team model", func() {
 		Context("when the user is in a team", func() {
 			It("Can get all teams for a given member", func() {
-				_, err := GetOrCreateTeam("test1-team1", testUsers[0])
-				_, err2 := GetOrCreateTeam("test1-team2", testUsers[1])
+				_, err := GetOrCreateTeam("test1-team1", testUsers[0], testUsers[1])
+				_, err2 := GetOrCreateTeam("test1-team2", testUsers[2], testUsers[3], testUsers[4])
 
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(err2).ShouldNot(HaveOccurred())
@@ -67,20 +67,39 @@ var _ = Describe("Models", func() {
 
 				Expect(userTeams).Should(HaveLen(1))
 				Expect(userTeams[0].Name).Should(Equal("test1-team1"))
+				Expect(userTeams[0].Owner).Should(Equal(testUsers[0].Id))
 				Expect(userTeams[0].Members).Should(HaveLen(1))
 				Expect(userTeams[0].Members[0]).Should(Equal(testUsers[0].Id))
 			})
+
+			It("Can get all teams for a given owner", func() {
+				_, err := GetOrCreateTeam("test4-team1", testUsers[0], testUsers[1])
+				_, err2 := GetOrCreateTeam("test4-team2", testUsers[2], testUsers[3], testUsers[4])
+
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(err2).ShouldNot(HaveOccurred())
+
+				userTeams, err := GetTeamsFor(testUsers[0].Id)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				Expect(userTeams).Should(HaveLen(1))
+				Expect(userTeams[0].Name).Should(Equal("test4-team1"))
+				Expect(userTeams[0].Owner).Should(Equal(testUsers[0].Id))
+				Expect(userTeams[0].Members).Should(HaveLen(1))
+				Expect(userTeams[0].Members[0]).Should(Equal(testUsers[0].Id))
+			})
+
 		})
 
 		Context("when the user is in no teams", func() {
 			It("should return an empty list of teams", func() {
 				_, err := GetOrCreateTeam("test2-team1", testUsers[2])
-				_, err2 := GetOrCreateTeam("test2-team2", testUsers[3])
+				_, err2 := GetOrCreateTeam("test2-team2", testUsers[3], testUsers[4])
 
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(err2).ShouldNot(HaveOccurred())
 
-				userTeams, err := GetTeamsFor(testUsers[4].Id)
+				userTeams, err := GetTeamsFor(testUsers[5].Id)
 				Expect(err).ShouldNot(HaveOccurred())
 
 				Expect(userTeams).Should(BeEmpty())
@@ -89,23 +108,26 @@ var _ = Describe("Models", func() {
 
 		Context("when the team doesn't exist", func() {
 			It("should create team", func() {
-				team, err := GetOrCreateTeam("team1")
+				team, err := GetOrCreateTeam("team1", testUsers[6])
 
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(team.Name).Should(Equal("team1"))
+				Expect(team.Owner).Should(Equal(testUsers[6].Id))
 				Expect(team.Members).Should(HaveLen(0))
 			})
 
 			It("should create team with user", func() {
-				team, err := GetOrCreateTeam("team1", testUsers[0])
+				team, err := GetOrCreateTeam("team1", testUsers[0], testUsers[1])
 
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(team.Name).Should(Equal("team1"))
+				Expect(team.Owner).Should(Equal(testUsers[0].Id))
 				Expect(team.Members).Should(HaveLen(1))
+				Expect(team.Members[0]).Should(Equal(testUsers[1].Id))
 			})
 
 			It("should create team with users", func() {
-				team, err := GetOrCreateTeam("team1", testUsers[0], testUsers[1])
+				team, err := GetOrCreateTeam("team1", testUsers[0], testUsers[1], testUsers[2])
 
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(team.Name).Should(Equal("team1"))

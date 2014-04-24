@@ -171,8 +171,8 @@ var _ = Describe("Team Handler", func() {
 				allUsers = append(allUsers, &result)
 			}
 
-			team, _ := models.GetOrCreateTeam("team1", *allUsers[0])
-			team2, _ := models.GetOrCreateTeam("team2", *allUsers[1])
+			team, _ := models.GetOrCreateTeam("team1", *allUsers[0], *allUsers[1])
+			team2, _ := models.GetOrCreateTeam("team2", *allUsers[2], *allUsers[3])
 			allTeams = append(allTeams, team, team2)
 		})
 
@@ -200,7 +200,7 @@ var _ = Describe("Team Handler", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 
 			token := jwt.New(jwt.GetSigningMethod("HS256"))
-			token.Claims["sub"] = allUsers[0].UserId
+			token.Claims["sub"] = allUsers[1].UserId
 			token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 			GetUserTeams(recorder, request, token)

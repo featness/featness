@@ -8,6 +8,7 @@ import (
 type Team struct {
 	Id      bson.ObjectId   `json:"id"        bson:"_id,omitempty"`
 	Name    string          `json:"name"`
+	Owner   bson.ObjectId   `json:"owner"`
 	Members []bson.ObjectId `json:"members"`
 }
 
@@ -27,7 +28,11 @@ func GetTeamsFor(member bson.ObjectId) ([]Team, error) {
 	defer conn.Close()
 
 	teams := []Team{}
-	err = teamsColl.Find(bson.M{"members": member}).All(&teams)
+	err = teamsColl.Find(
+		bson.M{"$or": []bson.M{
+			bson.M{"members": member},
+			bson.M{"owner": member},
+		}}).All(&teams)
 
 	if err != nil {
 		return nil, err
@@ -36,7 +41,7 @@ func GetTeamsFor(member bson.ObjectId) ([]Team, error) {
 	return teams, nil
 }
 
-func GetOrCreateTeam(name string, members ...User) (*Team, error) {
+func GetOrCreateTeam(name string, owner User, members ...User) (*Team, error) {
 	conn, teamsColl, err := Teams()
 	if err != nil {
 		return nil, err
@@ -50,7 +55,7 @@ func GetOrCreateTeam(name string, members ...User) (*Team, error) {
 
 	_, err = teamsColl.Upsert(
 		bson.M{"name": name},
-		&Team{bson.NewObjectId(), name, usersBson},
+		&Team{bson.NewObjectId(), name, owner.Id, usersBson},
 	)
 
 	if err != nil {

@@ -12,7 +12,6 @@ import (
 var _ = Describe("Models", func() {
 	var (
 		conn      *mgo.Session
-		teams     *mgo.Collection
 		users     *mgo.Collection
 		testUsers []User
 	)
@@ -22,12 +21,8 @@ var _ = Describe("Models", func() {
 			err error
 		)
 
-		conn, teams, err = Teams()
-		Expect(err).ShouldNot(HaveOccurred())
-		teams.RemoveAll(bson.M{})
-
 		testUsers = []User{}
-		conn, users, err = UsersWithConn(conn)
+		conn, users, err = Users()
 		Expect(err).ShouldNot(HaveOccurred())
 
 		users.RemoveAll(bson.M{})
