@@ -46,6 +46,8 @@ angular
 
   .factory('httpRequestInterceptor', ->
     request: (config) ->
+      config['cache'] = false
+
       storage = window.sessionStorage
       token = storage.getItem("featness-token")
 

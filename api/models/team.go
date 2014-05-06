@@ -41,7 +41,7 @@ func GetTeamsFor(member bson.ObjectId) ([]Team, error) {
 	return teams, nil
 }
 
-func GetOrCreateTeam(name string, owner User, members ...User) (*Team, error) {
+func GetOrCreateTeam(name string, owner *User, members ...*User) (*Team, error) {
 	conn, teamsColl, err := Teams()
 	if err != nil {
 		return nil, err

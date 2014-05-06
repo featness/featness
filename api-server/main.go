@@ -39,6 +39,7 @@ func crossDomain(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, X-Auth-Data, X-Auth-Token")
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -47,6 +48,7 @@ func AllowCrossDomainFunc(handler http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
 		w.Header().Set("Access-Control-Expose-Headers", "Accept, Content-Type, X-Auth-Data, X-Auth-Token")
+
 		handler(w, r)
 	}
 }
@@ -87,8 +89,9 @@ func getRouter() *pat.Router {
 	router.Get("/healthcheck", AllowCrossDomainFunc(api.Healthcheck))
 	router.Post("/authenticate/google", AllowCrossDomainFunc(api.AuthenticateWithGoogle))
 	router.Post("/authenticate/facebook", AllowCrossDomainFunc(api.AuthenticateWithFacebook))
-	router.Get("/teams", AllowCrossDomainFunc(AuthRequiredFunc(api.GetUserTeams)))
+	router.Post("/teams/new", AllowCrossDomainFunc(AuthRequiredFunc(api.CreateTeam)))
 	router.Get("/teams/available", AllowCrossDomainFunc(AuthRequiredFunc(api.IsTeamNameAvailable)))
+	router.Get("/teams", AllowCrossDomainFunc(AuthRequiredFunc(api.GetUserTeams)))
 	router.Get("/users/find", AllowCrossDomainFunc(api.FindUsersWithIdLike))
 	router.Get("/all-teams", AllowCrossDomainFunc(api.GetAllTeams))
 	router.Add("OPTIONS", "/", http.HandlerFunc(crossDomain))

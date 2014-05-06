@@ -8,6 +8,7 @@ import (
 	"labix.org/v2/mgo/bson"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func GetUserTeams(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
@@ -108,4 +109,35 @@ func IsTeamNameAvailable(w http.ResponseWriter, r *http.Request, token *jwt.Toke
 	}
 
 	w.Write(b)
+}
+
+func CreateTeam(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
+	name := r.FormValue("name")
+	owner := r.FormValue("owner")
+	users := r.FormValue("users")
+
+	loadedOwner, err := models.GetUserByUserId(owner)
+	if err != nil {
+		log.Println(fmt.Sprintf("Invalid owner when saving new team (%v).", err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	loadedUsers := []*models.User{}
+	if users != "" {
+		userIds := strings.Split(users, ",")
+		for _, userId := range userIds {
+			user, err := models.GetUserByUserId(userId)
+			if err != nil {
+				log.Println(fmt.Sprintf("Invalid user (%s) when saving new team (%v).", userId, err))
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			loadedUsers = append(loadedUsers, user)
+		}
+	}
+
+	team, err := models.GetOrCreateTeam(name, loadedOwner, loadedUsers...)
+
+	w.Write([]byte(team.Id.String()))
 }

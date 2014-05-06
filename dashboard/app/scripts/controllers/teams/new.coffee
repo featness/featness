@@ -32,7 +32,7 @@ class NewTeamCtrl
 
         @http({method: 'GET', url: "http://local.featness.com:8000/teams/available?name=#{ name }"}).
             success((data, status, headers, config) =>
-                if data? and data
+                if data? and data.toLowerCase() == "true"
                     @nameAvailable = true
                     @nameAvailableClass = successClass
                 else
@@ -58,6 +58,25 @@ class NewTeamCtrl
 
         @selectedMembers.splice(index, 1)
 
+    createTeam: =>
+        formData =
+            name: @teamName
+            owner: @teamOwner.account
+            users: (user.UserId for user in @selectedMembers)
+
+        @http(
+            url: "http://local.featness.com:8000/teams/new",
+            method: "POST",
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            data: $.param(formData)
+        ).success((data, status, headers, config) =>
+            console.log(arguments)
+        ).error((data, status, headers, config) =>
+            console.log('error', arguments)
+        )
+
+
+        return false
 
 angular.module('dashboardApp')
     .controller 'NewTeamCtrl', ($scope, $http, AuthService) ->

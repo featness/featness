@@ -54,9 +54,7 @@ func GetOrCreateUser(provider string, accessToken string, userID string, name st
 		return nil, fmt.Errorf("Can't create user with empty name.")
 	}
 
-	user := &User{}
-	err = usersColl.Find(bson.M{"userid": userID}).One(user)
-
+	user, err := GetUserByUserId(userID)
 	if err != nil {
 		user = &User{bson.NewObjectId(), provider, accessToken, name, userID, time.Now(), imageURL}
 		err = usersColl.Insert(user)
@@ -77,11 +75,33 @@ func FindUsersWithIdLike(name string) (*[]User, error) {
 	defer conn.Close()
 
 	users := []User{}
-	err = usersColl.Find(bson.M{"userid": bson.M{"$regex": bson.RegEx{name, ""}}}).All(&users)
+
+	findByUserId := bson.M{"userid": bson.M{"$regex": bson.RegEx{name, ""}}}
+	findByUserName := bson.M{"name": bson.M{"$regex": bson.RegEx{name, ""}}}
+	query := bson.M{"$or": []bson.M{findByUserId, findByUserName}}
+
+	err = usersColl.Find(query).All(&users)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return &users, nil
+}
+
+func GetUserByUserId(userId string) (*User, error) {
+	conn, usersColl, err := Users()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	user := &User{}
+	err = usersColl.Find(bson.M{"userid": userId}).One(user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
