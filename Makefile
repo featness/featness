@@ -129,8 +129,11 @@ _build_web_app:
 
 test: mongo_test _go_test
 
-run-api:
+run-api: kill_run_api
 	@godep go run ./api-server/main.go --config ./api/etc/local.conf
+
+kill_run_api:
+	@-ps aux | egrep -i '\-\-config .\/api\/etc\/local.conf' | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
 
 run-dashboard:
 	@cd dashboard && grunt serve
@@ -138,12 +141,19 @@ run-dashboard:
 kill_redis:
 	@-redis-cli -p 4444 shutdown
 
+redis-foreman: kill_redis
+	@redis-server ./redis-foreman.conf
+
 redis: kill_redis
 	@redis-server ./redis.conf; sleep 1
 	@redis-cli -p 4444 info > /dev/null
 
 kill_mongo:
-	@-ps aux | egrep -i 'mongod.+3334' | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
+	@-ps aux | egrep -i 'mongod.+3333' | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
+
+mongo-foreman: kill_mongo
+	@rm -rf /tmp/featness/mongo* && mkdir -p /tmp/featness/mongodata
+	@mongod --dbpath /tmp/featness/mongodata --logpath /tmp/featness/mongolog --port 3333 --quiet
 
 mongo: kill_mongo
 	@rm -rf /tmp/featness/mongodata && mkdir -p /tmp/featness/mongodata
@@ -157,3 +167,6 @@ mongo_test: kill_mongo_test
 	@mongod --dbpath /tmp/featness/mongotestdata --logpath /tmp/featness/mongotestlog --port 3334 --quiet &
 
 deps: mongo redis
+
+run:
+	@foreman start

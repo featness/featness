@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 	"time"
@@ -37,10 +38,26 @@ func GetOrCreateUser(provider string, accessToken string, userID string, name st
 	}
 	defer conn.Close()
 
-	user := &User{}
-	_ = usersColl.Find(bson.M{"userid": userID}).One(user)
+	if provider == "" {
+		return nil, fmt.Errorf("Can't create user with empty provider.")
+	}
 
-	if user == nil {
+	if accessToken == "" {
+		return nil, fmt.Errorf("Can't create user with empty accessToken.")
+	}
+
+	if userID == "" {
+		return nil, fmt.Errorf("Can't create user with empty userID.")
+	}
+
+	if name == "" {
+		return nil, fmt.Errorf("Can't create user with empty name.")
+	}
+
+	user := &User{}
+	err = usersColl.Find(bson.M{"userid": userID}).One(user)
+
+	if err != nil {
 		user = &User{bson.NewObjectId(), provider, accessToken, name, userID, time.Now(), imageURL}
 		err = usersColl.Insert(user)
 

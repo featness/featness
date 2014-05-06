@@ -140,5 +140,9 @@ func main() {
 
 	router := getRouter()
 	log.Println("featness-api running at http://localhost:8000...")
-	http.ListenAndServe(":8000", router)
+	err = http.ListenAndServe(":8000", router)
+	if err != nil {
+		fmt.Printf("ERROR: Binding to port 8000 failed with error:\n\t>>> %s\n", err)
+		return
+	}
 }
