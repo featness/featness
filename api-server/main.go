@@ -89,6 +89,7 @@ func getRouter() *pat.Router {
 	router.Get("/healthcheck", AllowCrossDomainFunc(api.Healthcheck))
 	router.Post("/authenticate/google", AllowCrossDomainFunc(api.AuthenticateWithGoogle))
 	router.Post("/authenticate/facebook", AllowCrossDomainFunc(api.AuthenticateWithFacebook))
+	router.Get("/authenticate/validate", AllowCrossDomainFunc(api.IsAuthenticationValid([]byte(securityKey))))
 	router.Post("/teams/new", AllowCrossDomainFunc(AuthRequiredFunc(api.CreateTeam)))
 	router.Get("/teams/available", AllowCrossDomainFunc(AuthRequiredFunc(api.IsTeamNameAvailable)))
 	router.Get("/teams", AllowCrossDomainFunc(AuthRequiredFunc(api.GetUserTeams)))

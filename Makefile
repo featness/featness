@@ -152,8 +152,11 @@ kill_mongo:
 	@-ps aux | egrep -i 'mongod.+3333' | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
 
 mongo-foreman: kill_mongo
-	@rm -rf /tmp/featness/mongo* && mkdir -p /tmp/featness/mongodata
+	@mkdir -p /tmp/featness/mongodata
 	@mongod --dbpath /tmp/featness/mongodata --logpath /tmp/featness/mongolog --port 3333 --quiet
+
+clear-mongo:
+	@rm -rf /tmp/featness/mongodata
 
 mongo: kill_mongo
 	@rm -rf /tmp/featness/mongodata && mkdir -p /tmp/featness/mongodata

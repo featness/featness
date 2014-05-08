@@ -38,9 +38,16 @@ angular
         .replace("#{$location.protocol()}://#{$location.host()}:#{$location.port()}", "") \
         .replace("#{$location.protocol()}://#{$location.host()}", "")
 
-      requiresAuthentication = $route.routes[nextPath].isAuthenticated
-      if (requiresAuthentication and not AuthService.isAuthenticated())
-        $location.url("/login")
+      route = $route.routes[nextPath]
+
+      if not route?
+        return
+
+      if route.isAuthenticated
+        AuthService.validateAuthentication((isAuthenticated) ->
+          if (not isAuthenticated)
+            $location.url("/login")
+        )
     )
   )
 

@@ -1,10 +1,3 @@
-<script type="text/ng-template" id="addMember.html">
-    <a class="add-member-match">
-        <img ng-src="{{match.model.ImageUrl}}" width="32">
-        <span bind-html-unsafe="match.model.Name"></span>
-    </a>
-</script>
-
 <div class="new-team-view view">
 
     <h1>create a new team</h1>
@@ -18,13 +11,13 @@
         </div>
 
         <div class="form-group members">
-            <h3>find a member</h3>
+            <h3>add members</h3>
             <input type="text" 
                    class="form-control"
                    ng-model="model.selectedMember"
                    typeahead="member for member in model.getUsersThatMatch($viewValue) | filter:{name:$viewValue} | limitTo:8"
                    typeahead-on-select="model.addMember()"
-                   typeahead-template-url="addMember.html"
+                   typeahead-template-url="/views/directives/addnew.html"
                    typeahead-wait-ms="100">
 
             <h3 class="added-members">team members</h3>
@@ -45,7 +38,7 @@
             </ul>
         </div>
 
-        <div class="btn btn-success btn-lg create-button" ng-click="model.createTeam()">create team</div>
+        <div class="btn col-lg-3 col-md-3 col-sm-4 btn-success btn-lg create-button" ng-click="model.createTeam()">create team</div>
     </form>
 
 </div>

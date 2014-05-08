@@ -1,116 +1,136 @@
 'use strict'
 
 class AuthService
-  constructor: (@http, @window) ->
-    @storage = @window.sessionStorage
+    constructor: (@http, @window) ->
+        @storage = @window.sessionStorage
 
-  isAuthenticated: ->
-    return @getToken()?
+    isAuthenticated: ->
+        return @getToken()?
 
-  getToken: ->
-    return @storage.getItem("featness-token")
+    validateAuthentication: (callback) ->
+        @http({method: 'GET', url: "http://local.featness.com:8000/authenticate/validate"}).
+            success((data, status, headers, config) =>
+                if status == 200
+                    callback(true)
+                    return
 
-  getUser: ->
-    if not @storage.getItem("featness-account")?
-      return null
+                @clearToken()
+                callback(false)
+            ).
+            error((data, status, headers, config) =>
+                @clearToken()
+                callback(false)
+            )
 
-    return {
-      account: @storage.getItem("featness-account")
-      name: @storage.getItem("featness-account-name")
-      picture: @storage.getItem("featness-account-image")
-    }
+    clearToken: ->
+        @storage.removeItem("featness-token")
+        @storage.removeItem("featness-account")
+        @storage.removeItem("featness-account-name")
+        @storage.removeItem("featness-account-image")
 
-  authenticateWithGoogle: (callback) ->
-    gapi.auth.signIn(
-      callback: (authResult) =>
-        gapi.client.load('plus','v1', @handleProfileLoad(authResult, callback))
-    ) # Will use page level configuration
+    getToken: ->
+        return @storage.getItem("featness-token")
 
-  handleProfileLoad: (authResult, callback) ->
-    return =>
-      request = gapi.client.plus.people.get( {'userId' : 'me'} )
-      request.execute(@handleProfileLoaded(authResult, callback))
+    getUser: ->
+        if not @storage.getItem("featness-account")?
+            return null
 
-  handleProfileLoaded: (authResult, callback) ->
-    return (profile) =>
-      userAccount = ""
-      for email in profile.emails
-        if email.type == "account"
-          userAccount = email.value
-          break
+        return {
+            account: @storage.getItem("featness-account")
+            name: @storage.getItem("featness-account-name")
+            picture: @storage.getItem("featness-account-image")
+        }
 
-      @getAuthenticationHeader("google", userAccount, authResult.access_token, callback)
+    authenticateWithGoogle: (callback) ->
+        gapi.auth.signIn(
+            callback: (authResult) =>
+                gapi.client.load('plus','v1', @handleProfileLoad(authResult, callback))
+        ) # Will use page level configuration
 
-  initializeFacebook: (handleFacebookCallback) ->
-    id = 'facebook-jssdk'
-    ref = document.getElementsByTagName('script')[0]
+    handleProfileLoad: (authResult, callback) ->
+        return =>
+            request = gapi.client.plus.people.get( {'userId' : 'me'} )
+            request.execute(@handleProfileLoaded(authResult, callback))
 
-    return if document.getElementById(id)?
+    handleProfileLoaded: (authResult, callback) ->
+        return (profile) =>
+            userAccount = ""
+            for email in profile.emails
+                if email.type == "account"
+                    userAccount = email.value
+                    break
 
-    js = document.createElement('script')
-    js.id = id
-    js.async = true
-    js.src = "//connect.facebook.net/en_US/all.js"
+            @getAuthenticationHeader("google", userAccount, authResult.access_token, callback)
 
-    ref.parentNode.insertBefore(js, ref)
+    initializeFacebook: (handleFacebookCallback) ->
+        id = 'facebook-jssdk'
+        ref = document.getElementsByTagName('script')[0]
 
-    @window.fbAsyncInit = =>
-      #Executed when the SDK is loaded
-      FB.init(
-        appId: '843188275707721',
-        channelUrl: 'app/channel.html',
-        status: true,
-        cookie: true,
-        xfbml: true
-      )
+        return if document.getElementById(id)?
 
-      FB.Event.subscribe('auth.authResponseChange', @handleFacebookAuthenticationResponseChange)
+        js = document.createElement('script')
+        js.id = id
+        js.async = true
+        js.src = "//connect.facebook.net/en_US/all.js"
 
-    @facebookCallback = handleFacebookCallback
+        ref.parentNode.insertBefore(js, ref)
 
-  handleFacebookAuthenticationResponseChange: (response) =>
-    if (response.status == 'connected')
-      ###
-      The user is already logged,
-      is possible retrieve his personal info
-      ###
-      FB.api('/me', (meResponse) =>
-        @getAuthenticationHeader("facebook", response.authResponse.accessToken, meResponse.username, meResponse.name, "http://graph.facebook.com/#{ meResponse.username }/picture", @facebookCallback)
-      )
+        @window.fbAsyncInit = =>
+            #Executed when the SDK is loaded
+            FB.init(
+              appId: '843188275707721',
+              channelUrl: 'app/channel.html',
+              status: true,
+              cookie: true,
+              xfbml: true
+            )
 
-    else
-      ###
-      The user is not logged to the app, or into Facebook:
-      destroy the session on the server.
-      ###
-      console.log('unauthenticated')
+            FB.Event.subscribe('auth.authResponseChange', @handleFacebookAuthenticationResponseChange)
 
-  authenticateWithFacebook: (callback) ->
-    FB.login()
+        @facebookCallback = handleFacebookCallback
 
-  getAuthenticationHeader: (provider, accessToken, userAccount, name, imageUrl, callback) ->
-    @http(
-      url: "http://local.featness.com:8000/authenticate/#{ provider }",
-      method: "POST",
-      headers: {
-        'X-Auth-Data': "#{userAccount};#{name};#{imageUrl};#{accessToken}"
-      }
-      data: {}
-    ).success((data, status, headers, config) =>
-      token = headers('X-Auth-Token')
-      if token?
-        @storage.setItem("featness-token", token)
-        @storage.setItem("featness-account", userAccount)
-        @storage.setItem("featness-account-name", name)
-        @storage.setItem("featness-account-image", imageUrl)
-        callback(userAccount, name, token)
-      else
-        callback(null, null, null)
-    ).error((data, status, headers, config) =>
-      callback(null, null, null)
-    )
+    handleFacebookAuthenticationResponseChange: (response) =>
+        if (response.status == 'connected')
+            ###
+            The user is already logged,
+            is possible retrieve his personal info
+            ###
+            FB.api('/me', (meResponse) =>
+              @getAuthenticationHeader("facebook", response.authResponse.accessToken, meResponse.username, meResponse.name, "http://graph.facebook.com/#{ meResponse.username }/picture", @facebookCallback)
+            )
 
+        else
+            ###
+            The user is not logged to the app, or into Facebook:
+            destroy the session on the server.
+            ###
+            console.log('unauthenticated')
+
+    authenticateWithFacebook: (callback) ->
+        FB.login()
+
+    getAuthenticationHeader: (provider, accessToken, userAccount, name, imageUrl, callback) ->
+        @http(
+            url: "http://local.featness.com:8000/authenticate/#{ provider }",
+            method: "POST",
+            headers: {
+                'X-Auth-Data': "#{userAccount};#{name};#{imageUrl};#{accessToken}"
+            }
+            data: {}
+        ).success((data, status, headers, config) =>
+            token = headers('X-Auth-Token')
+            if token?
+                @storage.setItem("featness-token", token)
+                @storage.setItem("featness-account", userAccount)
+                @storage.setItem("featness-account-name", name)
+                @storage.setItem("featness-account-image", imageUrl)
+                callback(userAccount, name, token)
+            else
+                callback(null, null, null)
+        ).error((data, status, headers, config) =>
+            callback(null, null, null)
+        )
 
 angular.module('dashboardApp')
-  .service 'AuthService', ($http, $window) ->
-    return new AuthService($http, $window)
+    .service 'AuthService', ($http, $window) ->
+      return new AuthService($http, $window)

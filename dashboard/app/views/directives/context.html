@@ -1,0 +1,46 @@
+<nav class="navbar navbar-default" role="navigation" ng-if="model.authenticated">
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ model.teamText }}<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="team in model.allTeams"><a href="#" ng-click="model.setCurrentTeam(team.name)">{{ team.name }}</a></li>
+                    <li class="divider" ng-show="model.allTeams"></li>
+                    <li><a href="/teams/new">Add new team</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Select a Project<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Project a</a></li>
+                    <li><a href="#">Project b</a></li>
+                    <li><a href="#">Project c</a></li>
+                    <li><a href="#">Project d</a></li>
+                    <li><a href="#">Project e</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/team/current/projects/new">Add new project</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Select a Feature<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Feature a</a></li>
+                    <li><a href="#">Feature b</a></li>
+                    <li><a href="#">Feature c</a></li>
+                    <li><a href="#">Feature d</a></li>
+                    <li><a href="#">Feature e</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/team/current/project/projecta/features/new">Add new feature</a></li>
+                </ul>
+            </li>
+        </ul>
+
+    </div><!-- /.navbar-collapse -->
+</nav>

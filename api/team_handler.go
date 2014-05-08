@@ -77,14 +77,6 @@ func GetAllTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func IsTeamNameAvailable(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
-	conn, teamsColl, err := models.Teams()
-	if err != nil {
-		log.Println(fmt.Sprintf("Error connecting to the database (%v).", err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer conn.Close()
-
 	name := r.FormValue("name")
 	if name == "" {
 		log.Println("Invalid team name when finding if team name available.")
@@ -92,15 +84,14 @@ func IsTeamNameAvailable(w http.ResponseWriter, r *http.Request, token *jwt.Toke
 		return
 	}
 
-	teams := &[]models.Team{}
-	err = teamsColl.Find(bson.M{"name": name}).All(teams)
+	isTeamNameAvailable, err := models.IsTeamNameAvailable(name)
 	if err != nil {
 		log.Println(fmt.Sprintf("Error finding all teams with name that matches '%s' (%v).", name, err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	b, err := json.Marshal(len(*teams) == 0)
+	b, err := json.Marshal(isTeamNameAvailable)
 
 	if err != nil {
 		log.Println(fmt.Sprintf("Error converting result to json format (%v).", err))
@@ -139,5 +130,11 @@ func CreateTeam(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 
 	team, err := models.GetOrCreateTeam(name, loadedOwner, loadedUsers...)
 
-	w.Write([]byte(team.Id.String()))
+	if err != nil {
+		log.Println(fmt.Sprintf("Error creating new team (%v).", err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte(team.Slug))
 }

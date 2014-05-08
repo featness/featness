@@ -5,6 +5,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globoi/featness/api/models"
 	"github.com/tsuru/config"
+	"labix.org/v2/mgo/bson"
 	"log"
 	"net/http"
 	"os"
@@ -81,4 +82,48 @@ func AuthenticationRoute(w http.ResponseWriter, r *http.Request, providerName st
 
 	w.Header().Set("X-Auth-Token", token)
 	w.WriteHeader(http.StatusOK)
+}
+
+func IsAuthenticationValid(securityKey []byte) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		header, ok := r.Header["X-Auth-Token"]
+
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
+			log.Println("X-Auth-Token status was not found.")
+			return
+		}
+
+		token, err := jwt.Parse(header[0], func(t *jwt.Token) ([]byte, error) { return securityKey, nil })
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			log.Println(fmt.Sprintf("X-Auth-Token is not a valid token (%v).", err))
+			return
+		}
+
+		if !token.Valid {
+			w.WriteHeader(http.StatusUnauthorized)
+			log.Println("X-Auth-Token is not a valid token.")
+			return
+		}
+
+		conn, usersColl, err := models.Users()
+		if err != nil {
+			log.Println(fmt.Sprintf("Error connecting to the database (%v).", err))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		defer conn.Close()
+
+		sub := token.Claims["sub"].(string)
+		user := &models.User{}
+		err = usersColl.Find(bson.M{"userid": sub}).One(user)
+		if err != nil {
+			log.Println(fmt.Sprintf("Could not find user with userId %s (%v).", sub, err))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
 }
