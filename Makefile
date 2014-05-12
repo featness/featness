@@ -17,12 +17,9 @@ kill_mongo:
 
 mongo: kill_mongo
 	@mongod --dbpath /tmp/featness/mongodata --logpath /tmp/featness/mongolog --port 3333 --quiet &
-	@sleep 2
 
 clear_mongo drop drop_db:
 	@rm -rf /tmp/featness && mkdir -p /tmp/featness/mongodata
-	@$(MAKE) mongo
-	@$(MAKE) restore_dump
 
 kill_mongo_test:
 	@-ps aux | egrep -i 'mongod.+3334' | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9
@@ -35,7 +32,7 @@ run_dashboard run-dashboard dashboard dash: mongo
 	@cd featness/dashboard && ./manage.py runserver --settings=featness.dashboard.featness_dashboard.settings_local
 
 update_dump:
-	@mongodump --host localhost --port 3333 --out ./mongodata
+	@rm -rf ./mongodump && mkdir -p ./mongodump && mongodump --host localhost --port 3333 --out ./mongodump
 
 restore_dump:
 	@mongorestore --host localhost --port 3333 ./mongodata

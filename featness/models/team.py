@@ -1,5 +1,5 @@
-from mongoengine import *
-from mongoengine.django.auth import User
+from mongoengine import Document, StringField, ListField, ReferenceField
+from featness.models.user import User
 
 
 class Team(Document):
@@ -7,3 +7,6 @@ class Team(Document):
     slug = StringField(required=True)
     members = ListField(ReferenceField(User))
     owner = ReferenceField(User)
+    
+    def __str__(self):
+        return "Team %s" % self.name
