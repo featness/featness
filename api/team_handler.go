@@ -102,6 +102,53 @@ func IsTeamNameAvailable(w http.ResponseWriter, r *http.Request, token *jwt.Toke
 	w.Write(b)
 }
 
+func LoadTeam(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
+	teamId := r.URL.Query().Get(":teamId")
+
+	team, err := models.FindTeamBySlug(teamId)
+	if err != nil {
+		log.Println(fmt.Sprintf("Error loading team with slug '%s' (%v).", teamId, err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	owner, err := team.Owner.MarshalJSON()
+	if err != nil {
+		log.Println(fmt.Sprintf("Error serializing team owner with slug '%s' (%v).", teamId, err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	members := []string{}
+
+	for _, member := range team.Members {
+		memberId, err := member.MarshalJSON()
+		if err != nil {
+			log.Println(fmt.Sprintf("Error serializing team user with slug '%s' (%v).", teamId, err))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		members = append(members, string(memberId))
+	}
+
+	b, err := json.Marshal(
+		map[string]interface{}{
+			"slug":    team.Slug,
+			"name":    team.Name,
+			"members": members,
+			"owner":   owner,
+		},
+	)
+
+	if err != nil {
+		log.Println(fmt.Sprintf("Error converting result to json format (%v).", err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(b)
+}
+
 func CreateTeam(w http.ResponseWriter, r *http.Request, token *jwt.Token) {
 	name := r.FormValue("name")
 	owner := r.FormValue("owner")

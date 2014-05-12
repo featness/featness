@@ -24,12 +24,21 @@ class ContextCtrl
     setCurrentTeam: (teamId) ->
         @storage.setItem("currentTeam", teamId)
         @loadSelectedTeam()
+        $location.url("/team/#{ teamId }")
 
     loadSelectedTeam: ->
         teamId = @storage.getItem("currentTeam")
-        return unless teamId?
 
-        @selectedTeam = teamId
+        if not teamId?
+            if @allTeams.length > 0
+                @selectedTeam = @allTeams[0].slug
+                @setCurrentTeam(@selectedTeam)
+                return
+            else
+                return
+        else
+            @selectedTeam = teamId
+
         team = @getTeam(teamId)
         @teamText = "Team: #{ team.name }"
 

@@ -17,6 +17,23 @@ type Logger interface {
 	Panicf(format string, v ...interface{})
 }
 
+func getRouter() *pat.Router {
+	router := pat.New()
+	router.Get("/healthcheck", AllowCrossDomainFunc(api.Healthcheck))
+	router.Post("/authenticate/google", AllowCrossDomainFunc(api.AuthenticateWithGoogle))
+	router.Post("/authenticate/facebook", AllowCrossDomainFunc(api.AuthenticateWithFacebook))
+	router.Get("/authenticate/validate", AllowCrossDomainFunc(api.IsAuthenticationValid([]byte(securityKey))))
+	router.Post("/teams/new", AllowCrossDomainFunc(AuthRequiredFunc(api.CreateTeam)))
+	router.Get("/teams/available", AllowCrossDomainFunc(AuthRequiredFunc(api.IsTeamNameAvailable)))
+	router.Get("/teams", AllowCrossDomainFunc(AuthRequiredFunc(api.GetUserTeams)))
+	router.Get("/team/{teamId:[^/]+}", AllowCrossDomainFunc(AuthRequiredFunc(api.LoadTeam)))
+	router.Get("/users/find", AllowCrossDomainFunc(api.FindUsersWithIdLike))
+	router.Get("/all-teams", AllowCrossDomainFunc(api.GetAllTeams))
+	router.Add("OPTIONS", "/", http.HandlerFunc(crossDomain))
+
+	return router
+}
+
 func parseFlags(args []string) (string, bool) {
 	flagSet := flag.NewFlagSet("configuration", flag.ExitOnError)
 	configFile := flagSet.String("config", "/etc/featness-api.conf", "Featness API configuration file")
@@ -82,22 +99,6 @@ func AuthRequiredFunc(handler SecureFunc) http.HandlerFunc {
 
 		handler(w, r, token)
 	}
-}
-
-func getRouter() *pat.Router {
-	router := pat.New()
-	router.Get("/healthcheck", AllowCrossDomainFunc(api.Healthcheck))
-	router.Post("/authenticate/google", AllowCrossDomainFunc(api.AuthenticateWithGoogle))
-	router.Post("/authenticate/facebook", AllowCrossDomainFunc(api.AuthenticateWithFacebook))
-	router.Get("/authenticate/validate", AllowCrossDomainFunc(api.IsAuthenticationValid([]byte(securityKey))))
-	router.Post("/teams/new", AllowCrossDomainFunc(AuthRequiredFunc(api.CreateTeam)))
-	router.Get("/teams/available", AllowCrossDomainFunc(AuthRequiredFunc(api.IsTeamNameAvailable)))
-	router.Get("/teams", AllowCrossDomainFunc(AuthRequiredFunc(api.GetUserTeams)))
-	router.Get("/users/find", AllowCrossDomainFunc(api.FindUsersWithIdLike))
-	router.Get("/all-teams", AllowCrossDomainFunc(api.GetAllTeams))
-	router.Add("OPTIONS", "/", http.HandlerFunc(crossDomain))
-
-	return router
 }
 
 func connectToMongo() error {

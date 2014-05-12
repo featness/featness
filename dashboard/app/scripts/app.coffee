@@ -27,6 +27,10 @@ angular
         templateUrl: '/views/teams/new.html'
         controller: 'NewTeamCtrl'
         isAuthenticated: true
+      .when '/team/:teamId',
+        templateUrl: '/views/teams/show.html'
+        controller: 'ShowTeamCtrl'
+        isAuthenticated: true
       .otherwise
         redirectTo: '/'
 
