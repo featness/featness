@@ -57,6 +57,7 @@ Featness is a feature control application. It allows users to launch features fo
     },
     entry_points={
         'console_scripts': [
+            'featness-dashboard=featness.dashboard.main:start_server',
         ],
     },
 )

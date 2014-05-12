@@ -8,7 +8,7 @@ from flask.ext.admin.contrib.mongoengine import ModelView
 import flask.ext.login as login
 from flask.ext.bcrypt import Bcrypt
 
-from featness.models import User, Team, Project
+from featness.models import User, Team, Project, Feature
 
 app = Flask("featness")
 
@@ -49,6 +49,7 @@ def start_server():
     adm.add_view(PasswordEnabledView(User))
     adm.add_view(ModelView(Team))
     adm.add_view(ModelView(Project))
+    adm.add_view(ModelView(Feature))
 
     app.run(debug=debug, host=host, port=port)
 

@@ -28,8 +28,8 @@ mongo_test: kill_mongo_test
 	@rm -rf /tmp/featness/mongotestdata && mkdir -p /tmp/featness/mongotestdata
 	@mongod --dbpath /tmp/featness/mongotestdata --logpath /tmp/featness/mongotestlog --port 3334 --quiet &
 
-run_dashboard run-dashboard dashboard dash: mongo
-	@cd featness/dashboard && ./manage.py runserver --settings=featness.dashboard.featness_dashboard.settings_local
+run run_dashboard run-dashboard dashboard dash: mongo
+	@DEBUG=True featness-dashboard
 
 update_dump:
 	@rm -rf ./mongodump && mkdir -p ./mongodump && mongodump --host localhost --port 3333 --out ./mongodump
