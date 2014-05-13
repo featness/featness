@@ -44,6 +44,7 @@ Featness is a feature control application. It allows users to launch features fo
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
+        'ujson',
         'cow-framework',
         'Flask-Admin',
         'flask-mongoengine',
@@ -51,12 +52,14 @@ Featness is a feature control application. It allows users to launch features fo
         'flask-bcrypt',
         'mongoengine',
         'blinker',
+        'pycurl',
     ],
     extras_require={
         'tests': tests_require,
     },
     entry_points={
         'console_scripts': [
+            'featness-api=featness.api.server:main',
             'featness-dashboard=featness.dashboard.main:start_server',
         ],
     },

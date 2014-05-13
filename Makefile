@@ -28,8 +28,11 @@ mongo_test: kill_mongo_test
 	@rm -rf /tmp/featness/mongotestdata && mkdir -p /tmp/featness/mongotestdata
 	@mongod --dbpath /tmp/featness/mongotestdata --logpath /tmp/featness/mongotestlog --port 3334 --quiet &
 
-run run_dashboard run-dashboard dashboard dash: mongo
+run run_dashboard run-dashboard dashboard dash:
 	@DEBUG=True featness-dashboard
+
+run_api run-api api:
+	@featness-api -vvv -d
 
 update_dump:
 	@rm -rf ./mongodump && mkdir -p ./mongodump && mongodump --host localhost --port 3333 --out ./mongodump
