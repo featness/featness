@@ -38,3 +38,9 @@ class ApiServerTestCase(ApiTestCase):
     def test_server_main_function(self, server_mock):
         featness.api.server.main()
         expect(server_mock.run.called).to_be_true()
+
+    def test_has_connected_to_redis(self):
+        app = self.get_app()
+        expect(app.redis).not_to_be_null()
+
+

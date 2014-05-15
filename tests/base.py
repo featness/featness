@@ -28,6 +28,7 @@ class ApiTestCase(CowTestCase):
         debug = os.environ.get('DEBUG_TESTS', 'False').lower() == 'true'
 
         self.server = FeatnessApiServer(config=cfg, debug=debug)
+
         return self.server
 
     def get_app(self):
