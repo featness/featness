@@ -3,7 +3,11 @@ setup: setup-python
 setup-python:
 	@pip install -U -e .\[tests\]
 
-test: mongo_test _go_test
+test: mongo_test redis_test unit
+
+unit:
+	@coverage run --branch `which nosetests` -vv --with-yanc -s tests/
+	@coverage report -m --fail-under=80
 
 kill_redis:
 	@-redis-cli -p 4444 shutdown
@@ -11,6 +15,13 @@ kill_redis:
 redis: kill_redis
 	@redis-server ./redis.conf; sleep 1
 	@redis-cli -p 4444 info > /dev/null
+
+kill_redis_test:
+	@-redis-cli -p 4445 shutdown
+
+redis_test: kill_redis_test
+	@redis-server ./redis.tests.conf; sleep 1
+	@redis-cli -p 4445 info > /dev/null
 
 kill_mongo:
 	@-ps aux | egrep -i 'mongod.+3333' | egrep -v egrep | awk '{ print $$2 }' | xargs kill -9

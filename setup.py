@@ -53,6 +53,7 @@ Featness is a feature control application. It allows users to launch features fo
         'mongoengine',
         'blinker',
         'pycurl',
+        'redis',
     ],
     extras_require={
         'tests': tests_require,

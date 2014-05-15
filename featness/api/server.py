@@ -4,6 +4,7 @@
 from cow.server import Server
 from tornado.httpclient import AsyncHTTPClient
 from mongoengine import connect
+import redis
 
 from featness import __version__
 from featness.api.handlers import BaseHandler
@@ -21,11 +22,10 @@ class VersionHandler(BaseHandler):
 
 
 class FeatnessApiServer(Server):
-    def __init__(self, db=None, debug=None, *args, **kw):
+    def __init__(self, debug=None, *args, **kw):
         super(FeatnessApiServer, self).__init__(*args, **kw)
 
         self.force_debug = debug
-        self.db = db
 
     def initialize_app(self, *args, **kw):
         super(FeatnessApiServer, self).initialize_app(*args, **kw)
@@ -52,6 +52,10 @@ class FeatnessApiServer(Server):
             password=self.config.MONGODB_PASS
         )
 
+        self.application.redis = redis.StrictRedis(host=self.config.REDIS_HOST, port=self.config.REDIS_PORT, db=self.config.REDIS_DB)
+
+        if self.config.REDIS_PASS is not None:
+            self.application.redis.auth(self.config.REDIS_PASS)
 
 if __name__ == '__main__':
     main()
